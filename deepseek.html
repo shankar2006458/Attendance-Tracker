@@ -1,0 +1,2096 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0f1e;
+  --bg-secondary: #131b2e;
+  --surface: rgba(20, 30, 48, 0.85);
+  --surface-hover: rgba(30, 42, 62, 0.9);
+  --border: rgba(99, 102, 241, 0.15);
+  --border-active: rgba(99, 102, 241, 0.35);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-primary: #6366f1;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+        * {
+            box-sizing: border-box;
+        }
+html {
+    background: var(--bg-primary);
+}
+body {
+    margin: 0;
+    font-family: "DM Sans", sans-serif;
+    color: var(--text-primary);
+    overflow-x: hidden;
+    background: var(--bg-primary);
+}
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+        button {
+            touch-action: manipulation;
+        }
+.app-shell {
+    width: 100%;
+    min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+    background: 
+        radial-gradient(circle at 82% 8%, rgba(99, 102, 241, 0.12), transparent 25rem),
+        radial-gradient(circle at 15% 88%, rgba(16, 185, 129, 0.1), transparent 28rem),
+        var(--bg-primary);
+}
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+        .sidebar {
+            width: 248px;
+        }
+        .content-pad {
+            padding-left: 248px;
+        }
+.nav-button {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-button.active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+
+.nav-button.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: var(--gradient-primary);
+  border-radius: 0 4px 4px 0;
+}
+        .page {
+            display: none;
+            animation: reveal .32s ease both;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes reveal {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+        .metric-number {
+            font-family: "Space Mono", monospace;
+            letter-spacing: -.05em;
+        }
+.card {
+  border-radius: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+  border-color: var(--border-active);
+}
+.soft-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: all 0.2s ease;
+}
+
+.soft-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-active);
+}
+
+/* Modern Routine Calendar Styles */
+.routine-calendar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.routine-week-header {
+    display: grid;
+    grid-template-columns: 90px repeat(7, 1fr);
+    background: rgba(10, 15, 30, 0.6);
+    border-bottom: 1px solid var(--border);
+}
+
+.routine-week-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.routine-hour-row {
+    display: grid;
+    grid-template-columns: 90px repeat(7, 1fr);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.05);
+    min-height: 56px;
+    position: relative;
+}
+
+.routine-hour-row:last-child {
+    border-bottom: none;
+}
+
+.routine-time-gutter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: rgba(10, 15, 30, 0.4);
+    border-right: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+}
+
+.routine-day-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    text-align: center;
+    position: relative;
+}
+
+.routine-day-header .day-name {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.routine-day-header .day-date {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.routine-day-header.today {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.routine-day-header.today .day-name {
+    color: var(--accent-primary);
+}
+
+.routine-day-header.today .day-date {
+    color: #fff;
+}
+
+.routine-day-header.today::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 2px 2px 0 0;
+}
+
+.routine-slot {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.routine-slot.has-class {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    border-radius: 8px;
+    margin: 2px;
+    min-height: 50px;
+}
+
+.routine-slot.has-class:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+.routine-slot.empty {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px dashed transparent;
+    border-radius: 8px;
+    margin: 2px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.routine-slot.empty:hover {
+    background: rgba(99, 102, 241, 0.03);
+    border-color: rgba(99, 102, 241, 0.15);
+}
+
+.routine-slot .slot-content {
+    padding: 8px 10px;
+    height: 100%;
+}
+
+.routine-slot .subject-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.routine-slot .subject-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.routine-slot .subject-name {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+.routine-slot .time-range {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+    letter-spacing: 0.3px;
+}
+
+.routine-slot .meta-info {
+    display: flex;
+    gap: 6px;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    opacity: 0.8;
+}
+
+.routine-slot .meta-info span {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Mobile Routine Cards */
+.routine-day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.routine-day-card.today-card {
+    border-left: 3px solid var(--accent-primary);
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.08), var(--surface));
+}
+
+.routine-day-header-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.08);
+}
+
+.routine-day-header-mobile .day-label {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.routine-day-header-mobile .today-badge {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.routine-class-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    width: 100%;
+}
+
+.routine-class-item:last-child {
+    margin-bottom: 0;
+}
+
+.routine-class-item:active {
+    background: rgba(99, 102, 241, 0.08);
+    transform: scale(0.98);
+}
+
+.routine-class-item .color-strip {
+    width: 3px;
+    height: 100%;
+    min-height: 40px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.routine-class-item .class-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.routine-class-item .class-time-mobile {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+}
+
+.routine-class-item .class-name-mobile {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.routine-class-item .class-meta-mobile {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Dashboard layout improvements */
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card-standard {
+    padding: 1.5rem;
+}
+
+.forecast-row {
+    border-top: 1px solid rgba(99, 102, 241, 0.08);
+}
+
+.alert-row {
+    border-left: 2px solid rgba(245, 158, 11, 0.5);
+}
+
+        .focusable:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid rgba(56, 189, 248, .5);
+            outline-offset: 2px;
+        }
+        .btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 16px;
+            border-radius: 13px;
+            font-weight: 700;
+            transition: .22s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    border: none;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    filter: brightness(1.1);
+}
+        .btn-secondary {
+            background: rgba(255, 255, 255, .07);
+            color: #e2e8f0;
+            border: 1px solid var(--line);
+        }
+        .btn-danger {
+            background: rgba(251, 113, 133, .14);
+            color: #fecdd3;
+            border: 1px solid rgba(251, 113, 133, .25);
+        }
+.field {
+    width: 100%;
+    min-height: 46px;
+    color: var(--text-primary);
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 10px 13px;
+    transition: all 0.2s ease;
+}
+
+.field:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+}
+        .field::placeholder {
+            color: #64748b;
+        }
+        select.field option {
+            background: #172033;
+        }
+        .progress-track {
+            height: 9px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(148, 163, 184, .15);
+        }
+.progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--gradient-success);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+.status-present {
+    color: var(--accent-success);
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+        .status-absent {
+            color: #fda4af;
+            background: rgba(251, 113, 133, .12);
+        }
+        .status-cancelled {
+            color: #cbd5e1;
+            background: rgba(148, 163, 184, .12);
+        }
+        .timeline-row {
+            transition: .22s ease;
+        }
+.timeline-row.is-current {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), transparent);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1);
+    border-left: 3px solid var(--accent-primary);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1); }
+    50% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
+}
+        .modal-layer {
+            opacity: 0;
+            visibility: hidden;
+            transition: .24s ease;
+        }
+        .modal-layer.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-panel {
+            transform: translateY(18px) scale(.98);
+            transition: .24s ease;
+        }
+        .modal-layer.open .modal-panel {
+            transform: none;
+        }
+        .toast {
+            transform: translateY(-18px);
+            opacity: 0;
+            pointer-events: none;
+            transition: .25s ease;
+        }
+        .toast.show {
+            transform: none;
+            opacity: 1;
+        }
+        .flash-check {
+            animation: pop .42s cubic-bezier(.2, .8, .2, 1);
+        }
+        @keyframes pop {
+            0% {
+                transform: scale(.6)
+            }
+            65% {
+                transform: scale(1.16)
+            }
+            100% {
+                transform: scale(1)
+            }
+        }
+        .chart-bar {
+            min-height: 8px;
+            transition: height .4s ease;
+        }
+        .mobile-nav {
+            display: none;
+        }
+.empty-illustration {
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 63%);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+            .content-pad {
+                padding-left: 0;
+                padding-bottom: 86px;
+            }
+            .mobile-nav {
+                display: grid;
+            }
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: block !important;
+            }
+            .app-header {
+                padding: 16px;
+            }
+            .main-wrap {
+                padding: 0 16px 24px;
+            }
+            .card-standard {
+                padding: 1rem;
+            }
+                .mobile-nav {
+        backdrop-filter: blur(24px);
+        background: rgba(10, 15, 30, 0.95);
+        border-top: 1px solid var(--border);
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+    
+    .mobile-nav .nav-button {
+        min-height: 56px;
+        padding: 8px 4px;
+        gap: 4px;
+    }
+    
+    .mobile-nav .nav-button.active {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));
+    }
+    
+    .mobile-nav .nav-button i {
+        width: 24px;
+        height: 24px;
+    }
+        }
+        @media (min-width: 901px) {
+            .mobile-only {
+                display: none !important;
+            }
+        }
+        @media (max-width: 520px) {
+            .card {
+                border-radius: 17px;
+            }
+            .btn {
+                min-height: 48px;
+            }
+            .hide-xs {
+                display: none;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+        @keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar glass fixed inset-y-0 left-0 z-30 border-y-0 border-l-0 p-5" aria-label="Primary navigation">
+            <div class="flex items-center gap-3 px-2 py-3">
+                <div class="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-950/30"><i data-lucide="graduation-cap" class="h-6 w-6"></i></div>
+                <div>
+                    <h1 class="font-bold leading-tight">Attendance Tracker</h1>
+                    <p class="mt-0.5 text-sm text-slate-400">Stay on track</p>
+                </div>
+            </div>
+            <nav class="mt-8 space-y-2" aria-label="Desktop">
+                <button class="nav-button active" type="button" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></button>
+                <button class="nav-button" type="button" data-view="routine"><i data-lucide="calendar-days"></i><span>Routine</span></button>
+                <button class="nav-button" type="button" data-view="subjects"><i data-lucide="book-open"></i><span>Subjects</span></button>
+                <button class="nav-button" type="button" data-view="attendance"><i data-lucide="clipboard-check"></i><span>Attendance</span></button>
+            </nav>
+            <div class="absolute bottom-5 left-5 right-5 soft-card p-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid var(--border);">
+                <div class="flex items-center gap-2" style="color: var(--accent-primary);"><i data-lucide="hard-drive" class="h-4 w-4"></i>
+                    <p class="font-bold">Works Offline</p>
+                </div>
+                <p class="mt-2 text-sm leading-relaxed" style="color: var(--text-secondary);">All data is stored locally on your device.</p>
+            </div>
+        </aside>
+        <div class="content-pad min-h-screen">
+            <header class="app-header sticky top-0 z-20 px-6 py-5 lg:px-8">
+                <div class="glass mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-2xl px-4 py-3">
+                    <div class="min-w-0">
+                        <p id="today-label" class="truncate text-xs font-bold uppercase tracking-[.2em]" style="color: var(--accent-primary);"></p>
+                        <h2 id="view-title" class="truncate text-xl font-bold">Dashboard</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="hide-xs inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-950/30 px-3 py-2 text-xs text-slate-300">
+                            <i data-lucide="wifi-off" class="h-4 w-4 text-emerald-300"></i> <span>Local storage</span>
+                        </span>
+                        <button id="reminder-button" type="button" class="focusable relative grid h-11 w-11 place-items-center rounded-xl border border-slate-700/70 bg-slate-950/30 text-slate-300" aria-label="Show reminders">
+                            <i data-lucide="bell" class="h-5 w-5"></i> <span id="reminder-dot" class="absolute right-2 top-2 hidden h-2 w-2 rounded-full bg-orange-400"></span>
+                        </button>
+                        <button id="quick-add" type="button" class="btn btn-primary"><i data-lucide="plus" class="h-4 w-4"></i> Quick Add</button>
+                    </div>
+                </div>
+            </header>
+            <main class="main-wrap mx-auto max-w-7xl px-6 pb-10 lg:px-8">
+                <section id="dashboard-page" class="page active" aria-labelledby="dashboard-heading">
+                    <div class="mb-6 flex items-end justify-between">
+                        <div>
+                            <h2 id="dashboard-heading" class="text-2xl font-bold">Your Dashboard</h2>
+                            <p class="mt-1 text-slate-400">Overview of your attendance and schedule.</p>
+                        </div>
+                    </div>
+                    <div id="dashboard-empty" class="glass card hidden p-12 sm:p-16 text-center max-w-md mx-auto">
+                        <div class="empty-illustration mx-auto grid h-28 w-28 place-items-center rounded-full"><i data-lucide="calendar-plus" class="h-12 w-12 text-emerald-300"></i></div>
+                        <h3 class="mt-4 text-xl font-bold">No subjects yet</h3>
+                        <p class="mx-auto mt-2 max-w-lg text-slate-400">Add your first subject to get started with tracking.</p>
+                        <button id="empty-add-subject" type="button" class="btn btn-primary mt-6"><i data-lucide="plus" class="h-4 w-4"></i> Add Subject</button>
+                    </div>
+                    <div id="dashboard-content" class="dashboard-grid">
+                        <!-- Row 1: Today's Classes (full width) -->
+                        <article class="glass card card-standard">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-bold">Today's Classes</h3>
+                                    <p id="today-class-caption" class="mt-1 text-sm text-slate-400"></p>
+                                </div><span class="rounded-full bg-sky-400/10 px-3 py-1 text-xs font-bold text-sky-300">TODAY</span>
+                            </div>
+                            <div id="today-timeline" class="mt-5 space-y-2"></div>
+                        </article>
+
+                        <!-- Row 2: Next Class + Today's Marks (side by side) -->
+                        <div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
+                            <article class="glass card card-standard">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5">
+                                        <i data-lucide="arrow-up-right" class="h-5 w-5 text-sky-300"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold">Next Class</h3>
+                                        <p class="mt-0.5 text-sm text-slate-400">Upcoming today</p>
+                                    </div>
+                                </div>
+                                <div id="next-class-content"></div>
+                            </article>
+                            <article class="glass card card-standard">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5">
+                                        <i data-lucide="check-check" class="h-5 w-5 text-emerald-300"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold">Today's Marks</h3>
+                                        <p class="mt-0.5 text-sm text-slate-400">Attendance status</p>
+                                    </div>
+                                </div>
+                                <div class="divide-y divide-slate-700/30">
+                                    <div class="grid grid-cols-3 gap-2 text-center pb-4">
+                                        <div class="soft-card p-3"><i data-lucide="check" class="mx-auto h-5 w-5 text-emerald-300"></i>
+                                            <div id="today-present" class="metric-number mt-2 text-2xl">0</div>
+                                            <p class="mt-1 text-xs text-slate-400">Present</p>
+                                        </div>
+                                        <div class="soft-card p-3"><i data-lucide="x" class="mx-auto h-5 w-5 text-rose-300"></i>
+                                            <div id="today-absent" class="metric-number mt-2 text-2xl">0</div>
+                                            <p class="mt-1 text-xs text-slate-400">Absent</p>
+                                        </div>
+                                        <div class="soft-card p-3"><i data-lucide="hourglass" class="mx-auto h-5 w-5 text-orange-300"></i>
+                                            <div id="today-remaining" class="metric-number mt-2 text-2xl">0</div>
+                                            <p class="mt-1 text-xs text-slate-400">Remaining</p>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4">
+                                        <p class="text-xs text-slate-500 text-center">Updated in real-time</p>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <!-- Row 3: Overall Attendance + Semester Progress (side by side) -->
+                        <div class="grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
+                            <article class="glass card card-standard">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <h3 class="text-lg font-bold">Overall Attendance</h3>
+                                        <p class="mt-1 text-sm text-slate-400">All subjects combined</p>
+                                    </div><i data-lucide="trending-up" class="text-emerald-300"></i>
+                                </div>
+                                <div id="overall-percent" class="metric-number mt-5 text-5xl font-bold text-white">—</div>
+                                <div class="progress-track mt-5">
+                                    <div id="overall-bar" class="progress-fill bg-emerald-400" style="width:0%"></div>
+                                </div>
+                                <p id="overall-counts" class="mt-3 text-sm text-slate-400"></p>
+                            </article>
+                            <article class="glass card card-standard">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-bold">Semester Progress</h3><span id="semester-value" class="metric-number text-2xl text-sky-300">0%</span>
+                                </div>
+                                <p class="mt-1 text-sm text-slate-400">Adjust to see projections</p>
+                                <label for="semester-range" class="mt-5 block text-sm font-bold">Semester completion</label>
+                                <input id="semester-range" class="mt-3 w-full accent-sky-400" type="range" min="0" max="100" value="0">
+                                <div class="mt-5 flex items-center gap-3 rounded-2xl bg-orange-400/10 p-3 text-orange-200"><span class="text-2xl">🔥</span>
+                                    <div><span id="streak-value" class="font-bold">0</span> <span>day streak</span></div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <!-- Row 4: Low Attendance + Forecast (side by side) -->
+                        <div class="grid gap-6">
+                            <article class="glass card card-standard">
+                                <div class="flex items-center gap-3">
+                                    <div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-400/10 text-orange-300"><i data-lucide="triangle-alert"></i></div>
+                                    <div>
+                                        <h3 class="font-bold">Low Attendance</h3>
+                                        <p class="text-sm text-slate-400">Subjects below target</p>
+                                    </div>
+                                </div>
+                                <div id="low-alerts" class="mt-4 space-y-3"></div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+                <section id="routine-page" class="page" aria-labelledby="routine-heading">
+                    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                            <h2 id="routine-heading" class="text-2xl font-bold">Weekly Routine</h2>
+                            <p class="mt-1 text-slate-400">Manage your class schedule.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="add-exception" type="button" class="btn btn-secondary"><i data-lucide="calendar-off" class="h-4 w-4"></i> Exception</button>
+                            <button id="add-routine" type="button" class="btn btn-primary"><i data-lucide="plus" class="h-4 w-4"></i> Add Class</button>
+                        </div>
+                    </div>
+                    <div id="routine-empty" class="glass card hidden p-12 sm:p-16 text-center max-w-md mx-auto"><i data-lucide="calendar-x" class="mx-auto h-12 w-12 text-slate-500"></i>
+                        <h3 class="mt-4 text-xl font-bold">No routine set</h3>
+                        <p class="mt-2 text-slate-400">Add classes to build your schedule.</p>
+                    </div>
+<div id="routine-desktop" class="glass card desktop-only hidden overflow-hidden" style="padding: 0;">
+    <div class="routine-calendar-container" id="routine-calendar">
+        <div class="routine-week-header" id="routine-week-header"></div>
+        <div class="routine-week-body" id="routine-week-body"></div>
+    </div>
+</div>
+                    <div id="routine-mobile" class="mobile-only hidden space-y-3"></div>
+                    <section class="glass card mt-6 p-5 sm:p-6" aria-labelledby="exceptions-heading">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 id="exceptions-heading" class="text-lg font-bold">Exceptions</h3>
+                                <p class="mt-1 text-sm text-slate-400">Holidays, exams, and cancelled days.</p>
+                            </div>
+                        </div>
+                        <div id="exceptions-list" class="mt-4 space-y-2"></div>
+                    </section>
+                </section>
+                <section id="subjects-page" class="page" aria-labelledby="subjects-heading">
+                    <div class="mb-6 flex items-end justify-between gap-3">
+                        <div>
+                            <h2 id="subjects-heading" class="text-2xl font-bold">Subjects</h2>
+                            <p class="mt-1 text-slate-400">Manage your courses.</p>
+                        </div>
+                        <button id="add-subject" type="button" class="btn btn-primary"><i data-lucide="plus" class="h-4 w-4"></i> Add Subject</button>
+                    </div>
+                    <div id="subjects-empty" class="glass card hidden p-12 sm:p-16 text-center max-w-md mx-auto"><i data-lucide="book-plus" class="mx-auto h-12 w-12 text-emerald-300"></i>
+                        <h3 class="mt-4 text-xl font-bold">No subjects</h3>
+                        <p class="mt-2 text-slate-400">Create a subject to track attendance.</p>
+                    </div>
+                    <div id="subjects-grid" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3"></div>
+                </section>
+                <section id="attendance-page" class="page" aria-labelledby="attendance-heading">
+                    <div class="mb-6">
+                        <h2 id="attendance-heading" class="text-2xl font-bold">Attendance</h2>
+                        <p class="mt-1 text-slate-400">Mark and review daily attendance.</p>
+                    </div>
+                    <div class="grid gap-6 xl:grid-cols-[1.05fr_.95fr]">
+                        <article class="glass card p-5 sm:p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-bold">Mark Today</h3>
+                                    <p id="attendance-date" class="mt-1 text-sm text-slate-400"></p>
+                                </div><span id="exception-badge" class="hidden rounded-full bg-orange-400/10 px-3 py-1 text-xs font-bold text-orange-300"></span>
+                            </div>
+                            <div id="today-attendance-list" class="mt-5 space-y-3"></div>
+                        </article>
+                        <article class="glass card p-5 sm:p-6">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="text-lg font-bold">History</h3>
+                                    <p class="mt-1 text-sm text-slate-400">Past attendance records.</p>
+                                </div><input id="history-date-filter" class="field w-auto" type="date" aria-label="Filter history by date">
+                            </div>
+                            <div id="history-list" class="mt-5 max-h-[620px] space-y-3 overflow-auto pr-1"></div>
+                        </article>
+                    </div>
+                </section>
+                <section id="subject-detail-page" class="page" aria-labelledby="subject-detail-name">
+                    <button id="detail-back" type="button" class="btn btn-secondary mb-5"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Subjects</button>
+                    <div id="subject-detail"></div>
+                </section>
+            </main>
+        </div>
+        <nav class="mobile-nav glass fixed bottom-0 left-0 right-0 z-40 grid-cols-4 border-x-0 border-b-0 px-2 pb-2 pt-2" aria-label="Mobile navigation">
+            <button class="nav-button active flex-col justify-center gap-1 px-1 text-xs" type="button" data-view="dashboard"><i data-lucide="home" class="h-5 w-5"></i><span>Home</span></button>
+            <button class="nav-button flex-col justify-center gap-1 px-1 text-xs" type="button" data-view="attendance"><i data-lucide="check-circle" class="h-5 w-5"></i><span>Attendance</span></button>
+            <button class="nav-button flex-col justify-center gap-1 px-1 text-xs" type="button" data-view="routine"><i data-lucide="calendar-days" class="h-5 w-5"></i><span>Routine</span></button>
+            <button class="nav-button flex-col justify-center gap-1 px-1 text-xs" type="button" data-view="subjects"><i data-lucide="book-open" class="h-5 w-5"></i><span>Subjects</span></button>
+        </nav>
+        
+        <div id="toast" class="toast glass fixed left-1/2 top-5 z-[80] flex -translate-x-1/2 items-center gap-3 rounded-2xl px-4 py-3 shadow-2xl" role="status" aria-live="polite">
+            <div class="grid h-9 w-9 place-items-center rounded-full bg-emerald-400 text-slate-950"><i data-lucide="check" class="h-5 w-5"></i></div>
+            <div>
+                <p id="toast-title" class="font-bold">Saved</p>
+                <p id="toast-copy" class="text-xs text-slate-400"></p>
+            </div>
+        </div>
+        <div id="subject-modal" class="modal-layer fixed inset-0 z-50 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="subject-modal-title">
+            <div class="modal-panel glass card max-h-[90vh] w-full max-w-xl overflow-auto p-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h2 id="subject-modal-title" class="text-xl font-bold">Subject</h2>
+                    <button class="modal-close grid h-10 w-10 place-items-center rounded-xl bg-white/5" type="button" data-close="subject-modal" aria-label="Close"><i data-lucide="x"></i></button>
+                </div>
+                <form id="subject-form" class="mt-5 grid gap-4" novalidate>
+                    <input id="subject-id" type="hidden">
+                    <div><label class="mb-2 block font-bold" for="subject-name">Subject Name</label><input id="subject-name" class="field" type="text" required></div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label class="mb-2 block font-bold" for="subject-code">Subject Code</label><input id="subject-code" class="field" type="text" required></div>
+                        <div><label class="mb-2 block font-bold" for="subject-teacher">Teacher</label><input id="subject-teacher" class="field" type="text" required></div>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label class="mb-2 block font-bold" for="subject-room">Room</label><input id="subject-room" class="field" type="text"></div>
+                        <div><label class="mb-2 block font-bold" for="subject-color">Color</label><input id="subject-color" class="field h-[46px] p-1" type="color" value="#34d399"></div>
+                    </div>
+                    <div><label class="mb-2 block font-bold" for="subject-minimum">Minimum %</label><input id="subject-minimum" class="field" type="number" min="1" max="100" value="75" required></div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label class="mb-2 block font-bold" for="past-present">Past Present</label><input id="past-present" class="field" type="number" min="0" value="0" required></div>
+                        <div><label class="mb-2 block font-bold" for="past-total">Past Total</label><input id="past-total" class="field" type="number" min="0" value="0" required></div>
+                    </div>
+                    <p id="subject-error" class="hidden rounded-xl bg-rose-400/10 p-3 text-sm text-rose-200"></p>
+                    <div class="mt-2 flex justify-end gap-2">
+                        <button class="btn btn-secondary" type="button" data-close="subject-modal">Cancel</button>
+                        <button class="btn btn-primary" type="submit">Save Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="routine-modal" class="modal-layer fixed inset-0 z-50 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="routine-modal-title">
+            <div class="modal-panel glass card max-h-[90vh] w-full max-w-xl overflow-auto p-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h2 id="routine-modal-title" class="text-xl font-bold">Class</h2>
+                    <button class="grid h-10 w-10 place-items-center rounded-xl bg-white/5" type="button" data-close="routine-modal" aria-label="Close"><i data-lucide="x"></i></button>
+                </div>
+                <form id="routine-form" class="mt-5 grid gap-4" novalidate>
+                    <input id="routine-id" type="hidden">
+                    <div><label class="mb-2 block font-bold" for="routine-day">Day</label><select id="routine-day" class="field" required></select></div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label class="mb-2 block font-bold" for="routine-start">Start Time</label><input id="routine-start" class="field" type="time" required></div>
+                        <div><label class="mb-2 block font-bold" for="routine-end">End Time</label><input id="routine-end" class="field" type="time" required></div>
+                    </div>
+                    <div><label class="mb-2 block font-bold" for="routine-subject">Subject</label><select id="routine-subject" class="field" required></select></div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label class="mb-2 block font-bold" for="routine-teacher">Teacher (optional)</label><input id="routine-teacher" class="field" type="text"></div>
+                        <div><label class="mb-2 block font-bold" for="routine-room">Room (optional)</label><input id="routine-room" class="field" type="text"></div>
+                    </div>
+                    <p id="routine-error" class="hidden rounded-xl bg-rose-400/10 p-3 text-sm text-rose-200"></p>
+                    <div class="flex justify-between gap-2">
+                        <button id="delete-routine" class="btn btn-danger hidden" type="button">Delete</button>
+                        <div class="ml-auto flex gap-2">
+                            <button class="btn btn-secondary" type="button" data-close="routine-modal">Cancel</button>
+                            <button class="btn btn-primary" type="submit">Save Class</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="exception-modal" class="modal-layer fixed inset-0 z-50 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="exception-modal-title">
+            <div class="modal-panel glass card w-full max-w-md p-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h2 id="exception-modal-title" class="text-xl font-bold">Add Exception</h2>
+                    <button class="grid h-10 w-10 place-items-center rounded-xl bg-white/5" type="button" data-close="exception-modal" aria-label="Close"><i data-lucide="x"></i></button>
+                </div>
+                <form id="exception-form" class="mt-5 grid gap-4">
+                    <div><label class="mb-2 block font-bold" for="exception-date">Date</label><input id="exception-date" class="field" type="date" required></div>
+                    <div><label class="mb-2 block font-bold" for="exception-type">Type</label><select id="exception-type" class="field"><option>Holiday</option><option>Exam</option><option>Cancelled</option></select></div>
+                    <div><label class="mb-2 block font-bold" for="exception-note">Note (optional)</label><textarea id="exception-note" class="field min-h-[92px]" rows="3"></textarea></div>
+                    <div class="flex justify-end gap-2">
+                        <button class="btn btn-secondary" type="button" data-close="exception-modal">Cancel</button>
+                        <button class="btn btn-primary" type="submit">Save Exception</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="note-modal" class="modal-layer fixed inset-0 z-50 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="note-modal-title">
+            <div class="modal-panel glass card w-full max-w-md p-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h2 id="note-modal-title" class="text-xl font-bold">Add Note</h2>
+                    <button class="grid h-10 w-10 place-items-center rounded-xl bg-white/5" type="button" data-close="note-modal" aria-label="Close"><i data-lucide="x"></i></button>
+                </div>
+                <form id="note-form" class="mt-5">
+                    <label class="mb-2 block font-bold" for="note-text">Note</label>
+                    <textarea id="note-text" class="field min-h-[120px]" required></textarea>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button class="btn btn-secondary" type="button" data-close="note-modal">Cancel</button>
+                        <button class="btn btn-primary" type="submit">Save Note</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="confirm-modal" class="modal-layer fixed inset-0 z-[60] grid place-items-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <div class="modal-panel glass card w-full max-w-sm p-6 text-center">
+                <div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-rose-400/10 text-rose-300"><i data-lucide="trash-2"></i></div>
+                <h2 id="confirm-title" class="mt-4 text-xl font-bold">Are you sure?</h2>
+                <p class="mt-2 text-slate-400">This action cannot be undone.</p>
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button id="confirm-cancel" class="btn btn-secondary" type="button">Cancel</button>
+                    <button id="confirm-delete" class="btn btn-danger" type="button">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const STORAGE_KEY = "attendanceTracker.v1";
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        const initialState = { subjects: [], routine: [], attendance: [], notes: [], exceptions: [], settings: { semesterProgress: 0 } };
+        let state = loadState();
+        let activeView = "dashboard";
+        let activeSubjectId = null;
+        let confirmAction = null;
+        let toastTimer = null;
+
+        function loadState() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                return saved ? {
+                    subjects: Array.isArray(saved.subjects) ? saved.subjects : [],
+                    routine: Array.isArray(saved.routine) ? saved.routine : [],
+                    attendance: Array.isArray(saved.attendance) ? saved.attendance : [],
+                    notes: Array.isArray(saved.notes) ? saved.notes : [],
+                    exceptions: Array.isArray(saved.exceptions) ? saved.exceptions : [],
+                    settings: saved.settings || { semesterProgress: 0 }
+                } : structuredClone(initialState);
+            } catch (_) {
+                return structuredClone(initialState);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                return true;
+            } catch (_) {
+                showToast("Could not save", "Browser storage is unavailable or full.", false);
+                return false;
+            }
+        }
+
+        function uid(prefix) {
+            return prefix + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+
+        function localDateKey(date = new Date()) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const d = String(date.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function parseDateKey(value) {
+            const [y, m, d] = value.split("-").map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        function dateLabel(value, includeYear = false) {
+            const options = { day: "numeric", month: "short" };
+            if (includeYear) options.year = "numeric";
+            return new Intl.DateTimeFormat("en-IN", options).format(parseDateKey(value));
+        }
+
+        function timeLabel(value) {
+            if (!value) return "";
+            const [h, m] = value.split(":").map(Number);
+            return new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit" }).format(new Date(2000, 0, 1, h,
+                m));
+        }
+
+        function todayName() {
+            return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
+        }
+
+        function subjectById(id) { return state.subjects.find(s => s.id === id); }
+
+        function routineById(id) { return state.routine.find(r => r.id === id); }
+
+        function attendanceFor(date, routineId) { return state.attendance.find(a => a.date === date && a.routineId ===
+                routineId); }
+
+        function exceptionFor(date) { return state.exceptions.find(e => e.date === date); }
+
+        function subjectStats(subject) {
+            const records = state.attendance.filter(a => a.subjectId === subject.id && a.status !== "cancelled");
+            const present = Number(subject.pastPresent || 0) + records.filter(a => a.status === "present").length;
+            const total = Number(subject.pastTotal || 0) + records.length;
+            const absent = Math.max(0, total - present);
+            const percent = total ? Math.round((present / total) * 100) : null;
+            return { present, absent, total, percent, records };
+        }
+
+        function requiredClasses(present, total, target) {
+            if (!total || (present / total) * 100 >= target) return 0;
+            const targetRatio = target / 100;
+            return Math.max(0, Math.ceil((targetRatio * total - present) / (1 - targetRatio)));
+        }
+
+        function safeMisses(present, total, target) {
+            if (!total) return 0;
+            const ratio = target / 100;
+            return Math.max(0, Math.floor(present / ratio - total));
+        }
+
+        function predictedPercent(present, total, attend, miss) {
+            const nextTotal = total + attend + miss;
+            return nextTotal ? Math.round(((present + attend) / nextTotal) * 100) : 0;
+        }
+
+        function scheduledRemaining(subjectId) {
+            const weekly = state.routine.filter(r => r.subjectId === subjectId).length;
+            const progress = Math.min(100, Number(state.settings.semesterProgress || 0));
+            if (!weekly) return 0;
+            return Math.round(weekly * 16 * (1 - progress / 100));
+        }
+
+        function getTodayRoutine() {
+            if (exceptionFor(localDateKey())) return [];
+            return state.routine
+                .filter(r => r.day === todayName())
+                .sort((a, b) => a.start.localeCompare(b.start));
+        }
+
+        function nowMinutes() {
+            const n = new Date();
+            return n.getHours() * 60 + n.getMinutes();
+        }
+
+        function timeMinutes(value) {
+            const [h, m] = value.split(":").map(Number);
+            return h * 60 + m;
+        }
+
+        function currentAndNext() {
+            const list = getTodayRoutine();
+            const now = nowMinutes();
+            const current = list.find(r => now >= timeMinutes(r.start) && now < timeMinutes(r.end));
+            const next = list.find(r => timeMinutes(r.start) > now);
+            return { current, next: current || next };
+        }
+
+        function setView(view, subjectId) {
+            activeView = view;
+            if (subjectId) activeSubjectId = subjectId;
+            document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+            const page = document.getElementById(view + "-page");
+            if (page) page.classList.add("active");
+            document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+            const names = { dashboard: "Dashboard", routine: "Routine", subjects: "Subjects", attendance: "Attendance",
+                "subject-detail": "Subject details" };
+            document.getElementById("view-title").textContent = names[view] || "Attendance Tracker";
+            if (view === "subject-detail") renderSubjectDetail();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function showToast(title, copy, success = true) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-title").textContent = title;
+            document.getElementById("toast-copy").textContent = copy || "";
+            const icon = toast.firstElementChild;
+            icon.className = "grid h-9 w-9 place-items-center rounded-full " + (success ?
+                "bg-emerald-400 text-slate-950" : "bg-rose-400 text-white");
+            toast.classList.add("show");
+            icon.classList.remove("flash-check");
+            void icon.offsetWidth;
+            icon.classList.add("flash-check");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add("open");
+            document.body.style.overflow = "hidden";
+            setTimeout(() => {
+                const control = document.querySelector(
+                    `#${id} input:not([type=hidden]), #${id} select, #${id} textarea, #${id} button`);
+                if (control) control.focus();
+            }, 80);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("open");
+            if (!document.querySelector(".modal-layer.open")) document.body.style.overflow = "";
+        }
+
+        function askDelete(action) {
+            confirmAction = action;
+            openModal("confirm-modal");
+        }
+
+        function addIcon(name, className = "h-4 w-4") {
+            return `<i data-lucide="${name}" class="${className}"></i>`;
+        }
+
+        function refreshIcons() {
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderRoutine();
+            renderSubjects();
+            renderAttendance();
+            if (activeView === "subject-detail") renderSubjectDetail();
+            updateReminders();
+            refreshIcons();
+        }
+
+        function renderDashboard() {
+            const empty = state.subjects.length === 0;
+            document.getElementById("dashboard-empty").classList.toggle("hidden", !empty);
+            document.getElementById("dashboard-content").classList.toggle("hidden", empty);
+            if (empty) return;
+
+            const today = getTodayRoutine();
+            const { current, next } = currentAndNext();
+            document.getElementById("today-class-caption").textContent =
+                `${today.length} scheduled class${today.length === 1 ? "" : "es"}`;
+            const timeline = document.getElementById("today-timeline");
+            timeline.innerHTML = today.length ? today.map(r => {
+                const s = subjectById(r.subjectId);
+                if (!s) return "";
+                const isCurrent = current && current.id === r.id;
+                const rec = attendanceFor(localDateKey(), r.id);
+                return `<div class="timeline-row soft-card flex items-center gap-4 p-3 ${isCurrent ? "is-current" : ""}">
+          <div class="w-20 shrink-0 text-sm font-bold ${isCurrent ? "text-emerald-300" : "text-slate-400"}">${timeLabel(r.start)}</div>
+          <div class="h-10 w-1 rounded-full" style="background:${s.color}"></div>
+          <div class="min-w-0 flex-1"><p class="truncate font-bold">${escapeHtml(s.name)}</p><p class="truncate text-xs text-slate-400">${escapeHtml(r.room || s.room || "Room not set")}</p></div>
+          ${isCurrent ? '<span class="status-pill status-present">NOW</span>' : rec ? statusPill(rec.status) : ""}
+        </div>`;
+            }).join("") :
+                `<div class="soft-card p-6 text-center text-slate-400">No classes scheduled today.</div>`;
+
+            const stats = state.subjects.map(subjectStats);
+            const totalPresent = stats.reduce((n, s) => n + s.present, 0);
+            const totalClasses = stats.reduce((n, s) => n + s.total, 0);
+            const overall = totalClasses ? Math.round(totalPresent / totalClasses * 100) : null;
+            document.getElementById("overall-percent").textContent = overall === null ? "—" : overall + "%";
+            document.getElementById("overall-bar").style.width = (overall || 0) + "%";
+            document.getElementById("overall-bar").className = "progress-fill " + ((overall || 0) >= 75 ? "bg-emerald-400" :
+                "bg-orange-400");
+            document.getElementById("overall-counts").textContent = totalClasses ?
+                `${totalPresent} present out of ${totalClasses} classes` : "Mark attendance to begin.";
+
+            document.getElementById("semester-range").value = state.settings.semesterProgress || 0;
+            document.getElementById("semester-value").textContent = (state.settings.semesterProgress || 0) + "%";
+            document.getElementById("streak-value").textContent = calculateStreak();
+
+            const nextBox = document.getElementById("next-class-content");
+            if (!next) {
+                nextBox.innerHTML =
+                    `<div class="soft-card p-6 text-center text-slate-400">No upcoming class today.</div>`;
+            } else {
+                const s = subjectById(next.subjectId);
+                const existing = attendanceFor(localDateKey(), next.id);
+                nextBox.innerHTML =
+                    `<div class="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
+          <div>
+            <div class="flex items-center gap-3"><span class="h-3 w-3 rounded-full" style="background:${s.color}"></span><h4 class="text-2xl font-bold">${escapeHtml(s.name)}</h4></div>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+              <div class="soft-card p-3"><span class="text-slate-500">Time</span><p class="mt-1 font-bold">${timeLabel(next.start)}</p></div>
+              <div class="soft-card p-3"><span class="text-slate-500">Room</span><p class="mt-1 font-bold">${escapeHtml(next.room || s.room || "—")}</p></div>
+              <div class="soft-card col-span-2 p-3 sm:col-span-1"><span class="text-slate-500">Teacher</span><p class="mt-1 font-bold">${escapeHtml(next.teacher || s.teacher || "—")}</p></div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-primary flex-1" data-mark="${next.id}" data-status="present">${addIcon("check")} Present</button>
+            <button class="btn btn-danger flex-1" data-mark="${next.id}" data-status="absent">${addIcon("x")} Absent</button>
+          </div>
+        </div>${existing ? `<div class="mt-4">${statusPill(existing.status)}</div>` : ""}`;
+            }
+
+            const todayRecords = today.map(r => attendanceFor(localDateKey(), r.id)).filter(Boolean);
+            document.getElementById("today-present").textContent = todayRecords.filter(a => a.status === "present").length;
+            document.getElementById("today-absent").textContent = todayRecords.filter(a => a.status === "absent").length;
+            document.getElementById("today-remaining").textContent = Math.max(0, today.length - todayRecords.length);
+
+            const low = state.subjects.filter(s => {
+                const p = subjectStats(s).percent;
+                return p !== null && p < Number(s.minimum || 75);
+            });
+            document.getElementById("low-alerts").innerHTML = low.length ? low.map(s => {
+                const st = subjectStats(s);
+                const need = requiredClasses(st.present, st.total, Number(s.minimum || 75));
+                return `<button type="button" data-open-subject="${s.id}" class="soft-card flex w-full items-center gap-3 p-3 text-left transition hover:bg-white/[.06]">
+          <span class="h-10 w-1 rounded-full" style="background:${s.color}"></span>
+          <span class="min-w-0 flex-1"><strong class="block truncate">${escapeHtml(s.name)}</strong><small class="text-slate-400">Need ${need} consecutive class${need === 1 ? "" : "es"}</small></span>
+          <strong class="metric-number text-orange-300">${st.percent}%</strong>
+        </button>`;
+            }).join("") :
+                `<div class="soft-card p-4 text-sm text-slate-400">No low-attendance alerts.</div>`;
+
+        }
+
+        function calculateStreak() {
+            const records = state.attendance
+                .filter(a => a.status !== "cancelled")
+                .sort((a, b) => (b.date + (routineById(b.routineId)?.start || "")).localeCompare(a.date + (routineById(a
+                    .routineId)?.start || "")));
+            let streak = 0;
+            for (const r of records) {
+                if (r.status !== "present") break;
+                streak++;
+            }
+            return streak;
+        }
+
+function renderRoutine() {
+    const hasRoutine = state.routine.length > 0;
+    document.getElementById("routine-empty").classList.toggle("hidden", hasRoutine);
+    document.getElementById("routine-desktop").classList.toggle("hidden", !hasRoutine);
+    
+    const today = todayName();
+    
+    // Desktop Calendar View
+    if (hasRoutine) {
+        const weekHeader = document.getElementById("routine-week-header");
+        const weekBody = document.getElementById("routine-week-body");
+        
+        // Get current week dates
+        const todayDate = new Date();
+        const currentDay = todayDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // Adjust for Monday start
+        
+        const weekDates = days.map((day, index) => {
+            const date = new Date(todayDate);
+            date.setDate(todayDate.getDate() + mondayOffset + index);
+            return {
+                dayName: day,
+                date: date.getDate(),
+                month: date.toLocaleString('en-US', { month: 'short' }),
+                isToday: day === today
+            };
+        });
+        
+        // Render header
+        weekHeader.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(10, 15, 30, 0.4); border-right: 1px solid var(--border);">
+                <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Time</span>
+            </div>
+            ${weekDates.map(d => `
+                <div class="routine-day-header ${d.isToday ? 'today' : ''}">
+                    <span class="day-name">${d.dayName.slice(0, 3)}</span>
+                    <span class="day-date">${d.date}</span>
+                    <span style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">${d.month}</span>
+                </div>
+            `).join("")}
+        `;
+        
+        // Create hour slots from 7 AM to 8 PM
+        const hours = [];
+        for (let h = 7; h <= 20; h++) {
+            hours.push({
+                hour: h,
+                label: `${h.toString().padStart(2, '0')}:00`,
+                start: `${h.toString().padStart(2, '0')}:00`,
+                end: `${(h + 1).toString().padStart(2, '0')}:00`
+            });
+        }
+        
+        // Render body
+        weekBody.innerHTML = hours.map(hour => `
+            <div class="routine-hour-row">
+                <div class="routine-time-gutter">${hour.label}</div>
+                ${days.map(day => {
+                    // Find routine entries that start in this hour
+                    const routineEntry = state.routine.find(r => {
+                        const startHour = parseInt(r.start.split(':')[0]);
+                        return r.day === day && startHour === hour.hour;
+                    });
+                    
+                    if (routineEntry) {
+                        const subject = subjectById(routineEntry.subjectId);
+                        if (!subject) {
+                            return `<div class="routine-slot empty"></div>`;
+                        }
+                        
+                        return `
+                            <button type="button" 
+                                    data-edit-routine="${routineEntry.id}" 
+                                    class="routine-slot has-class"
+                                    style="box-shadow: inset 3px 0 0 0 ${subject.color};">
+                                <div class="slot-content">
+                                    <div class="time-range">${timeLabel(routineEntry.start)} - ${timeLabel(routineEntry.end)}</div>
+                                    <div class="subject-indicator">
+                                        <span class="subject-dot" style="background: ${subject.color};"></span>
+                                        <span class="subject-name" style="color: ${subject.color};">${escapeHtml(subject.name)}</span>
+                                    </div>
+                                    <div class="meta-info">
+                                        ${routineEntry.room || subject.room ? `<span>📍 ${escapeHtml(routineEntry.room || subject.room)}</span>` : ''}
+                                        ${routineEntry.teacher || subject.teacher ? `<span>👤 ${escapeHtml(routineEntry.teacher || subject.teacher)}</span>` : ''}
+                                    </div>
+                                </div>
+                            </button>
+                        `;
+                    } else {
+                        // Check if there's a class spanning this hour
+                        const spanningEntry = state.routine.find(r => {
+                            const startHour = parseInt(r.start.split(':')[0]);
+                            const endHour = parseInt(r.end.split(':')[0]);
+                            return r.day === day && startHour < hour.hour && endHour > hour.hour;
+                        });
+                        
+                        if (spanningEntry) {
+                            const subject = subjectById(spanningEntry.subjectId);
+                            return `
+                                <div class="routine-slot has-class" 
+                                     style="opacity: 0.5; box-shadow: inset 3px 0 0 0 ${subject ? subject.color : 'transparent'};">
+                                    <div class="slot-content" style="display: flex; align-items: center; justify-content: center;">
+                                        <span style="font-size: 10px; color: var(--text-muted);">continues...</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        return `
+                            <div class="routine-slot empty">
+                                <span style="font-size: 11px; color: var(--text-muted); opacity: 0.3;">${hour.label}</span>
+                            </div>
+                        `;
+                    }
+                }).join("")}
+            </div>
+        `).join("");
+    }
+    
+    // Mobile View
+    const mobile = document.getElementById("routine-mobile");
+    mobile.classList.toggle("hidden", !hasRoutine);
+    if (hasRoutine) {
+        mobile.innerHTML = days.map(day => {
+            const list = state.routine.filter(r => r.day === day).sort((a, b) => a.start.localeCompare(b.start));
+            if (!list.length) return "";
+            
+            const isToday = day === today;
+            
+            return `
+                <div class="routine-day-card ${isToday ? 'today-card' : ''}">
+                    <div class="routine-day-header-mobile">
+                        <span class="day-label" style="color: ${isToday ? 'var(--accent-primary)' : 'var(--text-primary)'};">
+                            ${day}
+                        </span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${isToday ? '<span class="today-badge">Today</span>' : ''}
+                            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 12px;">
+                                ${list.length} class${list.length !== 1 ? 'es' : ''}
+                            </span>
+                        </div>
+                    </div>
+                    ${list.map(r => {
+                        const s = subjectById(r.subjectId);
+                        if (!s) return "";
+                        
+                        return `
+                            <button type="button" 
+                                    data-edit-routine="${r.id}" 
+                                    class="routine-class-item">
+                                <div class="color-strip" style="background: ${s.color};"></div>
+                                <div class="class-info">
+                                    <div class="class-time-mobile">${timeLabel(r.start)} → ${timeLabel(r.end)}</div>
+                                    <div class="class-name-mobile" style="color: ${s.color};">${escapeHtml(s.name)}</div>
+                                    <div class="class-meta-mobile">
+                                        ${r.room || s.room ? `<span>📍 ${escapeHtml(r.room || s.room)}</span>` : ''}
+                                        ${r.teacher || s.teacher ? `<span>👤 ${escapeHtml(r.teacher || s.teacher)}</span>` : ''}
+                                    </div>
+                                </div>
+                            </button>
+                        `;
+                    }).join("")}
+                </div>
+            `;
+        }).join("");
+    }
+
+    // Exceptions section
+    const exceptions = [...state.exceptions].sort((a, b) => b.date.localeCompare(a.date));
+    document.getElementById("exceptions-list").innerHTML = exceptions.length ? exceptions.map(e =>
+        `<div class="soft-card flex items-center gap-3 p-3" style="animation: slideIn 0.3s ease;">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-400/10 text-orange-300">${addIcon("calendar-off")}</div>
+        <div class="min-w-0 flex-1"><p class="font-bold">${dateLabel(e.date, true)} · ${escapeHtml(e.type)}</p><p class="truncate text-sm text-slate-400">${escapeHtml(e.note || "No note")}</p></div>
+        <button type="button" data-delete-exception="${e.id}" class="grid h-10 w-10 place-items-center rounded-xl text-rose-300 hover:bg-rose-400/10" aria-label="Delete exception">${addIcon("trash-2")}</button>
+      </div>`).join("") :
+        `<p class="soft-card p-4 text-sm text-slate-400">No holidays, exams, or cancelled days added.</p>`;
+}
+
+        function routineCard(r, compact) {
+            const s = subjectById(r.subjectId);
+            if (!s) return "";
+            return `<button type="button" data-edit-routine="${r.id}" class="w-full rounded-2xl border border-slate-700/50 bg-slate-950/25 p-3 text-left transition hover:-translate-y-0.5 hover:border-slate-600" style="box-shadow:inset 3px 0 ${s.color}">
+        <p class="text-xs font-bold text-slate-400">${timeLabel(r.start)}–${timeLabel(r.end)}</p>
+        <p class="${compact ? "mt-2 text-sm" : "mt-1"} font-bold">${escapeHtml(s.name)}</p>
+        <p class="mt-1 truncate text-xs text-slate-500">${escapeHtml(r.room || s.room || "Room not set")}</p>
+      </button>`;
+        }
+
+        function renderSubjects() {
+            const empty = state.subjects.length === 0;
+            document.getElementById("subjects-empty").classList.toggle("hidden", !empty);
+            const grid = document.getElementById("subjects-grid");
+            grid.innerHTML = state.subjects.map(s => {
+                const st = subjectStats(s);
+                const percent = st.percent === null ? "—" : st.percent + "%";
+                const width = st.percent || 0;
+                return `<article class="glass card overflow-hidden">
+          <div class="h-1.5" style="background:${s.color}"></div>
+          <div class="p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0"><h3 class="truncate text-xl font-bold">${escapeHtml(s.name)}</h3><p class="mt-1 text-sm font-bold" style="color:${s.color}">${escapeHtml(s.code)}</p></div>
+              <button type="button" data-edit-subject="${s.id}" class="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-slate-300" aria-label="Edit subject">${addIcon("pencil")}</button>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-3">
+              <div class="soft-card p-3"><p class="text-xs text-slate-500">Teacher</p><p class="mt-1 truncate font-bold">${escapeHtml(s.teacher)}</p></div>
+              <div class="soft-card p-3"><p class="text-xs text-slate-500">Room</p><p class="mt-1 truncate font-bold">${escapeHtml(s.room || "—")}</p></div>
+            </div>
+            <div class="mt-5 flex items-end justify-between"><div><p class="text-xs text-slate-500">Attendance</p><p class="metric-number mt-1 text-3xl font-bold">${percent}</p></div><p class="text-sm text-slate-400">${st.present}/${st.total} classes</p></div>
+            <div class="progress-track mt-3"><div class="progress-fill" style="width:${width}%;background:${s.color}"></div></div>
+            <div class="mt-5 grid grid-cols-[1fr_auto] gap-2">
+              <button type="button" data-open-subject="${s.id}" class="btn btn-secondary">${addIcon("chart-no-axes-column-increasing")} View stats</button>
+              <button type="button" data-delete-subject="${s.id}" class="btn btn-danger px-3" aria-label="Delete subject">${addIcon("trash-2")}</button>
+            </div>
+          </div>
+        </article>`;
+            }).join("");
+        }
+
+        function renderAttendance() {
+            const date = localDateKey();
+            document.getElementById("attendance-date").textContent = new Intl.DateTimeFormat("en-IN", { weekday: "long",
+                day: "numeric", month: "long" }).format(new Date());
+            const exception = exceptionFor(date);
+            const badge = document.getElementById("exception-badge");
+            badge.classList.toggle("hidden", !exception);
+            badge.textContent = exception ? exception.type : "";
+
+            const list = getTodayRoutine();
+            const box = document.getElementById("today-attendance-list");
+            if (exception) {
+                box.innerHTML =
+                    `<div class="soft-card p-7 text-center"><i data-lucide="calendar-off" class="mx-auto h-10 w-10 text-orange-300"></i><p class="mt-3 font-bold">${escapeHtml(exception.type)} marked</p><p class="mt-1 text-sm text-slate-400">Today's classes will not affect attendance.</p></div>`;
+            } else if (!list.length) {
+                box.innerHTML =
+                    `<div class="soft-card p-7 text-center text-slate-400">No classes scheduled for today.</div>`;
+            } else {
+                box.innerHTML = list.map(r => {
+                    const s = subjectById(r.subjectId);
+                    const rec = attendanceFor(date, r.id);
+                    return `<div class="soft-card p-4" style="box-shadow:inset 3px 0 ${s.color}">
+            <div class="flex items-center justify-between gap-3">
+              <div><p class="font-bold">${escapeHtml(s.name)}</p><p class="mt-1 text-sm text-slate-400">${timeLabel(r.start)} · ${escapeHtml(r.room || s.room || "Room not set")}</p></div>
+              ${rec ? statusPill(rec.status) : '<span class="text-xs text-slate-500">Not marked</span>'}
+            </div>
+            <div class="mt-4 grid grid-cols-3 gap-2">
+              ${attendanceButton(r.id,"present","check","Present",rec)}
+              ${attendanceButton(r.id,"absent","x","Absent",rec)}
+              ${attendanceButton(r.id,"cancelled","minus-circle","Cancelled",rec)}
+            </div>
+          </div>`;
+                }).join("");
+            }
+
+            const filter = document.getElementById("history-date-filter").value;
+            const records = [...state.attendance]
+                .filter(a => !filter || a.date === filter)
+                .sort((a, b) => (b.date + (routineById(b.routineId)?.start || "")).localeCompare(a.date + (routineById(a
+                    .routineId)?.start || "")));
+            const history = document.getElementById("history-list");
+            history.innerHTML = records.length ? records.map(a => {
+                const s = subjectById(a.subjectId);
+                if (!s) return "";
+                return `<div class="soft-card p-3">
+          <div class="flex items-center gap-3">
+            <div class="w-14 text-center"><p class="font-bold">${dateLabel(a.date)}</p></div>
+            <div class="h-9 w-1 rounded-full" style="background:${s.color}"></div>
+            <div class="min-w-0 flex-1"><p class="truncate font-bold">${escapeHtml(s.name)}</p><p class="text-xs text-slate-500">${timeLabel(routineById(a.routineId)?.start || "")}</p></div>
+            ${statusPill(a.status)}
+            <button type="button" data-delete-attendance="${a.id}" class="grid h-9 w-9 place-items-center rounded-xl text-rose-300 hover:bg-rose-400/10" aria-label="Delete attendance record">${addIcon("trash-2")}</button>
+          </div>
+          <div class="mt-3 grid grid-cols-3 gap-2">
+            ${historyEditButton(a.id,"present","Present",a.status)}
+            ${historyEditButton(a.id,"absent","Absent",a.status)}
+            ${historyEditButton(a.id,"cancelled","Cancelled",a.status)}
+          </div>
+        </div>`;
+            }).join("") :
+                `<div class="soft-card p-7 text-center text-slate-400">No attendance history yet.</div>`;
+        }
+
+        function attendanceButton(routineId, status, icon, label, record) {
+            const selected = record && record.status === status;
+            const cls = status === "present" ? "text-emerald-300" : status === "absent" ? "text-rose-300" : "text-slate-300";
+            return `<button type="button" data-mark="${routineId}" data-status="${status}" class="btn min-w-0 px-2 text-xs ${selected ? "bg-white/10 ring-1 ring-white/20" : "bg-slate-950/25"} ${cls}">${addIcon(icon)}<span class="hide-xs">${label}</span></button>`;
+        }
+
+        function historyEditButton(id, status, label, current) {
+            return `<button type="button" data-edit-attendance="${id}" data-status="${status}" class="min-h-9 rounded-xl px-2 text-xs font-bold ${current === status ? "bg-white/10 text-white" : "bg-slate-950/20 text-slate-500"}">${label}</button>`;
+        }
+
+        function statusPill(status) {
+            const data = {
+                present: ["check", "Present", "status-present"],
+                absent: ["x", "Absent", "status-absent"],
+                cancelled: ["minus-circle", "Cancelled", "status-cancelled"]
+            } [status];
+            return `<span class="status-pill ${data[2]}">${addIcon(data[0],"h-3.5 w-3.5")} ${data[1]}</span>`;
+        }
+
+        function renderSubjectDetail() {
+            const s = subjectById(activeSubjectId);
+            if (!s) { setView("subjects"); return; }
+            const st = subjectStats(s);
+            const target = Number(s.minimum || 75);
+            const safe = safeMisses(st.present, st.total, target);
+            const need = requiredClasses(st.present, st.total, target);
+            const attendFive = predictedPercent(st.present, st.total, 5, 0);
+            const missOne = predictedPercent(st.present, st.total, 0, 1);
+            const remaining = scheduledRemaining(s.id);
+            const projection = st.total || remaining ? predictedPercent(st.present, st.total, remaining, 0) : 0;
+            const records = [...state.attendance].filter(a => a.subjectId === s.id).sort((a, b) => b.date.localeCompare(a.date))
+                .slice(0, 12);
+            const notes = state.notes.filter(n => n.subjectId === s.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+            document.getElementById("subject-detail").innerHTML = `
+        <div class="glass card overflow-hidden">
+          <div class="h-2" style="background:${s.color}"></div>
+          <div class="p-5 sm:p-7">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div><p class="font-bold" style="color:${s.color}">${escapeHtml(s.code)}</p><h1 id="subject-detail-name" class="mt-1 text-3xl font-bold">${escapeHtml(s.name)}</h1><p class="mt-2 text-slate-400">${escapeHtml(s.teacher)} · ${escapeHtml(s.room || "Room not set")}</p></div>
+              <button type="button" data-edit-subject="${s.id}" class="btn btn-secondary">${addIcon("pencil")} Edit subject</button>
+            </div>
+            <div class="mt-7 grid grid-cols-2 gap-3 md:grid-cols-4">
+              ${detailMetric("Total classes", st.total)}
+              ${detailMetric("Present", st.present, "text-emerald-300")}
+              ${detailMetric("Absent", st.absent, "text-rose-300")}
+              ${detailMetric("Attendance", st.percent === null ? "—" : st.percent + "%", st.percent !== null && st.percent < target ? "text-orange-300" : "text-emerald-300")}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
+          <article class="glass card p-5 sm:p-6">
+            <h2 class="text-xl font-bold">Live Attendance Forecast</h2>
+            <p class="mt-1 text-sm text-slate-400">Calculated continuously from your records and target.</p>
+            <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              ${forecastTile("Current", st.percent === null ? "—" : st.percent + "%", "activity")}
+              ${forecastTile("Attend next 5", attendFive + "%", "trending-up")}
+              ${forecastTile("Miss next class", missOne + "%", "trending-down")}
+              ${forecastTile("Safe misses", safe, "shield-check")}
+              ${forecastTile("Required classes", need, "target")}
+              ${forecastTile("Semester projection", projection + "%", "sparkles")}
+            </div>
+            <div class="mt-6">
+              <div class="flex justify-between text-sm"><span>Target progress</span><strong>${st.percent === null ? "No classes" : st.percent + "% / " + target + "%"}</strong></div>
+              <div class="progress-track mt-3 h-3"><div class="progress-fill" style="width:${Math.min(100,st.percent || 0)}%;background:${s.color}"></div></div>
+              <p class="mt-3 text-sm text-slate-400">${need ? `Attend ${need} consecutive class${need === 1 ? "" : "es"} to reach ${target}%.` : st.total ? `You are currently at or above your ${target}% target.` : "Mark attendance to unlock predictions."}</p>
+            </div>
+          </article>
+
+          <article class="glass card p-5 sm:p-6">
+            <h2 class="text-xl font-bold">Recent attendance</h2>
+            <div class="mt-5 flex h-44 items-end gap-2 rounded-2xl bg-slate-950/25 p-4">
+              ${records.length ? records.slice(0,10).reverse().map(a => `<div class="flex flex-1 flex-col items-center justify-end gap-2"><div class="chart-bar w-full rounded-t-lg ${a.status === "present" ? "bg-emerald-400" : a.status === "absent" ? "bg-rose-400" : "bg-slate-500"}" style="height:${a.status === "present" ? "80%" : a.status === "absent" ? "42%" : "20%"}"></div><span class="text-[9px] text-slate-500">${dateLabel(a.date)}</span></div>`).join("") : '<p class="m-auto text-sm text-slate-500">No attendance records yet.</p>'}
+            </div>
+            <div class="mt-4 space-y-2">${records.slice(0,5).map(a => `<div class="flex items-center justify-between soft-card p-3"><span>${dateLabel(a.date,true)}</span>${statusPill(a.status)}</div>`).join("")}</div>
+          </article>
+        </div>
+
+        <article class="glass card mt-6 p-5 sm:p-6">
+          <div class="flex items-center justify-between gap-3"><div><h2 class="text-xl font-bold">Notes</h2><p class="mt-1 text-sm text-slate-400">Keep class changes, proxy notes, and reminders together.</p></div><button id="add-note" class="btn btn-primary">${addIcon("plus")} Add note</button></div>
+          <div class="mt-5 grid gap-3 md:grid-cols-2">${notes.length ? notes.map(n => `<div class="soft-card flex gap-3 p-4"><div class="text-sky-300">${addIcon("sticky-note")}</div><div class="min-w-0 flex-1"><p class="whitespace-pre-wrap">${escapeHtml(n.text)}</p><p class="mt-2 text-xs text-slate-500">${new Intl.DateTimeFormat("en-IN",{day:"numeric",month:"short",year:"numeric"}).format(new Date(n.createdAt))}</p></div><button data-delete-note="${n.id}" class="h-9 text-rose-300" aria-label="Delete note">${addIcon("trash-2")}</button></div>`).join("") : '<p class="soft-card p-5 text-slate-400">No notes for this subject.</p>'}</div>
+        </article>`;
+            refreshIcons();
+        }
+
+        function detailMetric(label, value, color = "") {
+            return `<div class="soft-card p-4"><p class="text-xs text-slate-500">${label}</p><p class="metric-number mt-2 text-3xl font-bold ${color}">${value}</p></div>`;
+        }
+
+        function forecastTile(label, value, icon) {
+            return `<div class="soft-card p-4"><i data-lucide="${icon}" class="h-5 w-5 text-sky-300"></i><p class="mt-3 text-xs text-slate-500">${label}</p><p class="metric-number mt-1 text-2xl font-bold">${value}</p></div>`;
+        }
+
+        function markAttendance(routineId, status) {
+            const routine = routineById(routineId);
+            if (!routine) return;
+            const date = localDateKey();
+            let record = attendanceFor(date, routineId);
+            if (record) record.status = status;
+            else state.attendance.push({ id: uid("att"), date, routineId, subjectId: routine.subjectId, status });
+            saveState();
+            renderAll();
+            showToast("Attendance saved", `${subjectById(routine.subjectId)?.name || "Class"} marked ${status}.`);
+        }
+
+        function openSubjectForm(id) {
+            const form = document.getElementById("subject-form");
+            form.reset();
+            document.getElementById("subject-error").classList.add("hidden");
+            document.getElementById("subject-color").value = "#34d399";
+            document.getElementById("subject-minimum").value = 75;
+            document.getElementById("past-present").value = 0;
+            document.getElementById("past-total").value = 0;
+            document.getElementById("subject-id").value = "";
+            if (id) {
+                const s = subjectById(id);
+                if (!s) return;
+                document.getElementById("subject-id").value = s.id;
+                document.getElementById("subject-name").value = s.name;
+                document.getElementById("subject-code").value = s.code;
+                document.getElementById("subject-teacher").value = s.teacher;
+                document.getElementById("subject-room").value = s.room || "";
+                document.getElementById("subject-color").value = s.color;
+                document.getElementById("subject-minimum").value = s.minimum;
+                document.getElementById("past-present").value = s.pastPresent || 0;
+                document.getElementById("past-total").value = s.pastTotal || 0;
+            }
+            openModal("subject-modal");
+        }
+
+        function openRoutineForm(id) {
+            if (!state.subjects.length) {
+                showToast("Add a subject first", "Routine entries need a subject.", false);
+                openSubjectForm();
+                return;
+            }
+            document.getElementById("routine-form").reset();
+            document.getElementById("routine-error").classList.add("hidden");
+            document.getElementById("routine-id").value = "";
+            populateRoutineSelects();
+            document.getElementById("routine-day").value = todayName();
+            document.getElementById("delete-routine").classList.add("hidden");
+            if (id) {
+                const r = routineById(id);
+                if (!r) return;
+                document.getElementById("routine-id").value = r.id;
+                document.getElementById("routine-day").value = r.day;
+                document.getElementById("routine-start").value = r.start;
+                document.getElementById("routine-end").value = r.end;
+                document.getElementById("routine-subject").value = r.subjectId;
+                document.getElementById("routine-teacher").value = r.teacher || "";
+                document.getElementById("routine-room").value = r.room || "";
+                document.getElementById("delete-routine").classList.remove("hidden");
+            }
+            openModal("routine-modal");
+        }
+
+        function populateRoutineSelects() {
+            document.getElementById("routine-day").innerHTML = days.map(d => `<option value="${d}">${d}</option>`).join(
+            "");
+            document.getElementById("routine-subject").innerHTML = state.subjects.map(s =>
+                `<option value="${s.id}">${escapeHtml(s.name)} (${escapeHtml(s.code)})</option>`).join("");
+        }
+
+        function updateReminders() {
+            const today = getTodayRoutine();
+            const unmarked = today.filter(r => !attendanceFor(localDateKey(), r.id));
+            const next = currentAndNext().next;
+            let message = "";
+            if (next) {
+                const diff = timeMinutes(next.start) - nowMinutes();
+                if (diff >= 0 && diff <= 30)
+                    message = `Your next class starts in ${diff} minute${diff === 1 ? "" : "s"}.`;
+            }
+            if (!message && unmarked.length)
+                message =
+                `Don't forget to mark today's attendance. ${unmarked.length} class${unmarked.length === 1 ? "" : "es"} remaining.`;
+            const button = document.getElementById("reminder-button");
+            button.dataset.message = message;
+            document.getElementById("reminder-dot").classList.toggle("hidden", !message);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;",
+                "'": "&#039;" } [c]));
+        }
+
+        document.addEventListener("click", e => {
+            const nav = e.target.closest("[data-view]");
+            if (nav) setView(nav.dataset.view);
+
+            const mark = e.target.closest("[data-mark]");
+            if (mark) markAttendance(mark.dataset.mark, mark.dataset.status);
+
+            const openSubject = e.target.closest("[data-open-subject]");
+            if (openSubject) setView("subject-detail", openSubject.dataset.openSubject);
+
+            const editSubject = e.target.closest("[data-edit-subject]");
+            if (editSubject) openSubjectForm(editSubject.dataset.editSubject);
+
+            const deleteSubject = e.target.closest("[data-delete-subject]");
+            if (deleteSubject) askDelete(() => {
+                const id = deleteSubject.dataset.deleteSubject;
+                state.subjects = state.subjects.filter(s => s.id !== id);
+                const routineIds = state.routine.filter(r => r.subjectId === id).map(r => r.id);
+                state.routine = state.routine.filter(r => r.subjectId !== id);
+                state.attendance = state.attendance.filter(a => a.subjectId !== id && !routineIds.includes(a
+                    .routineId));
+                state.notes = state.notes.filter(n => n.subjectId !== id);
+                saveState();
+                renderAll();
+                showToast("Subject deleted", "Related routine and attendance records were removed.");
+            });
+
+            const editRoutine = e.target.closest("[data-edit-routine]");
+            if (editRoutine) openRoutineForm(editRoutine.dataset.editRoutine);
+
+            const deleteAtt = e.target.closest("[data-delete-attendance]");
+            if (deleteAtt) askDelete(() => {
+                state.attendance = state.attendance.filter(a => a.id !== deleteAtt.dataset.deleteAttendance);
+                saveState();
+                renderAll();
+                showToast("Record deleted", "Attendance totals were recalculated.");
+            });
+
+            const editAtt = e.target.closest("[data-edit-attendance]");
+            if (editAtt) {
+                const record = state.attendance.find(a => a.id === editAtt.dataset.editAttendance);
+                if (record) { record.status = editAtt.dataset.status;
+                    saveState();
+                    renderAll();
+                    showToast("Attendance updated", `Status changed to ${record.status}.`); }
+            }
+
+            const deleteException = e.target.closest("[data-delete-exception]");
+            if (deleteException) askDelete(() => {
+                state.exceptions = state.exceptions.filter(x => x.id !== deleteException.dataset
+                    .deleteException);
+                saveState();
+                renderAll();
+                showToast("Calendar updated", "The exception was removed.");
+            });
+
+            const deleteNote = e.target.closest("[data-delete-note]");
+            if (deleteNote) askDelete(() => {
+                state.notes = state.notes.filter(n => n.id !== deleteNote.dataset.deleteNote);
+                saveState();
+                renderAll();
+                showToast("Note deleted", "");
+            });
+
+            const close = e.target.closest("[data-close]");
+            if (close) closeModal(close.dataset.close);
+        });
+
+        document.getElementById("add-subject").addEventListener("click", () => openSubjectForm());
+        document.getElementById("empty-add-subject").addEventListener("click", () => openSubjectForm());
+        document.getElementById("quick-add").addEventListener("click", () => activeView === "routine" ? openRoutineForm() :
+            openSubjectForm());
+        document.getElementById("add-routine").addEventListener("click", () => openRoutineForm());
+        document.getElementById("add-exception").addEventListener("click", () => {
+            document.getElementById("exception-form").reset();
+            document.getElementById("exception-date").value = localDateKey();
+            openModal("exception-modal");
+        });
+        document.getElementById("detail-back").addEventListener("click", () => setView("subjects"));
+        document.getElementById("reminder-button").addEventListener("click", e => {
+            const message = e.currentTarget.dataset.message;
+            showToast(message ? "Daily reminder" : "You're all caught up", message ||
+                "No attendance reminder right now.");
+        });
+
+        document.getElementById("subject-form").addEventListener("submit", e => {
+            e.preventDefault();
+            const error = document.getElementById("subject-error");
+            const present = Number(document.getElementById("past-present").value);
+            const total = Number(document.getElementById("past-total").value);
+            if (!e.currentTarget.checkValidity()) {
+                error.textContent = "Please complete all required fields.";
+                error.classList.remove("hidden");
+                return;
+            }
+            if (present > total) {
+                error.textContent = "Past present classes cannot be greater than past total classes.";
+                error.classList.remove("hidden");
+                return;
+            }
+            const id = document.getElementById("subject-id").value;
+            const data = {
+                name: document.getElementById("subject-name").value.trim(),
+                code: document.getElementById("subject-code").value.trim(),
+                teacher: document.getElementById("subject-teacher").value.trim(),
+                room: document.getElementById("subject-room").value.trim(),
+                color: document.getElementById("subject-color").value,
+                minimum: Number(document.getElementById("subject-minimum").value),
+                pastPresent: present,
+                pastTotal: total
+            };
+            if (id) Object.assign(subjectById(id), data);
+            else state.subjects.push({ id: uid("sub"), ...data });
+            saveState();
+            closeModal("subject-modal");
+            renderAll();
+            showToast(id ? "Subject updated" : "Subject added", `${data.name} is ready.`);
+        });
+
+        document.getElementById("routine-form").addEventListener("submit", e => {
+            e.preventDefault();
+            const error = document.getElementById("routine-error");
+            if (!e.currentTarget.checkValidity()) {
+                error.textContent = "Please complete the day, times, and subject.";
+                error.classList.remove("hidden");
+                return;
+            }
+            const start = document.getElementById("routine-start").value;
+            const end = document.getElementById("routine-end").value;
+            if (start >= end) {
+                error.textContent = "End time must be after start time.";
+                error.classList.remove("hidden");
+                return;
+            }
+            const id = document.getElementById("routine-id").value;
+            const data = {
+                day: document.getElementById("routine-day").value,
+                start,
+                end,
+                subjectId: document.getElementById("routine-subject").value,
+                teacher: document.getElementById("routine-teacher").value.trim(),
+                room: document.getElementById("routine-room").value.trim()
+            };
+            const overlap = state.routine.some(r => r.id !== id && r.day === data.day && data.start < r.end && data
+                .end > r.start);
+            if (overlap) {
+                error.textContent = "This class overlaps another class on the same day.";
+                error.classList.remove("hidden");
+                return;
+            }
+            if (id) Object.assign(routineById(id), data);
+            else state.routine.push({ id: uid("routine"), ...data });
+            saveState();
+            closeModal("routine-modal");
+            renderAll();
+            showToast(id ? "Routine updated" : "Class added", `${data.day}, ${timeLabel(data.start)}.`);
+        });
+
+        document.getElementById("delete-routine").addEventListener("click", () => {
+            const id = document.getElementById("routine-id").value;
+            closeModal("routine-modal");
+            askDelete(() => {
+                state.routine = state.routine.filter(r => r.id !== id);
+                state.attendance = state.attendance.filter(a => a.routineId !== id);
+                saveState();
+                renderAll();
+                showToast("Routine deleted", "Related attendance records were removed.");
+            });
+        });
+
+        document.getElementById("exception-form").addEventListener("submit", e => {
+            e.preventDefault();
+            const date = document.getElementById("exception-date").value;
+            const existing = exceptionFor(date);
+            const data = { type: document.getElementById("exception-type").value, note: document.getElementById(
+                    "exception-note").value.trim() };
+            if (existing) Object.assign(existing, data);
+            else state.exceptions.push({ id: uid("exc"), date, ...data });
+            saveState();
+            closeModal("exception-modal");
+            renderAll();
+            showToast("Calendar updated", `${data.type} saved for ${dateLabel(date)}.`);
+        });
+
+        document.getElementById("note-form").addEventListener("submit", e => {
+            e.preventDefault();
+            const text = document.getElementById("note-text").value.trim();
+            if (!text || !activeSubjectId) return;
+            state.notes.push({ id: uid("note"), subjectId: activeSubjectId, text, createdAt: new Date()
+            .toISOString() });
+            saveState();
+            closeModal("note-modal");
+            renderSubjectDetail();
+            showToast("Note saved", "");
+        });
+
+        document.addEventListener("click", e => {
+            if (e.target.closest("#add-note")) {
+                document.getElementById("note-form").reset();
+                openModal("note-modal");
+            }
+        });
+
+        document.getElementById("confirm-cancel").addEventListener("click", () => {
+            confirmAction = null;
+            closeModal("confirm-modal");
+        });
+        document.getElementById("confirm-delete").addEventListener("click", () => {
+            const action = confirmAction;
+            confirmAction = null;
+            closeModal("confirm-modal");
+            if (action) action();
+        });
+        document.getElementById("history-date-filter").addEventListener("change", renderAttendance);
+        document.getElementById("semester-range").addEventListener("input", e => {
+            state.settings.semesterProgress = Number(e.target.value);
+            document.getElementById("semester-value").textContent = e.target.value + "%";
+            saveState();
+        });
+        document.getElementById("semester-range").addEventListener("change", renderAll);
+
+        document.querySelectorAll(".modal-layer").forEach(layer => {
+            layer.addEventListener("mousedown", e => { if (e.target === layer) closeModal(layer.id); });
+        });
+        document.addEventListener("keydown", e => {
+            if (e.key === "Escape") {
+                const open = document.querySelector(".modal-layer.open");
+                if (open) closeModal(open.id);
+            }
+        });
+
+        document.getElementById("today-label").textContent = new Intl.DateTimeFormat("en-IN", { weekday: "long",
+            day: "numeric", month: "long" }).format(new Date());
+        populateRoutineSelects();
+        renderAll();
+        refreshIcons();
+    </script>
+</body>
+</html>
