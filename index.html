@@ -156,7 +156,7 @@ body {
 
 .routine-week-header {
     display: grid;
-    grid-template-columns: 90px repeat(7, 1fr);
+    grid-template-columns: 90px repeat(5, 1fr);
     background: rgba(10, 15, 30, 0.6);
     border-bottom: 1px solid var(--border);
 }
@@ -168,7 +168,7 @@ body {
 
 .routine-hour-row {
     display: grid;
-    grid-template-columns: 90px repeat(7, 1fr);
+    grid-template-columns: 90px repeat(5, 1fr);
     border-bottom: 1px solid rgba(99, 102, 241, 0.05);
     min-height: 56px;
     position: relative;
@@ -639,6 +639,9 @@ body {
     50% { transform: translateY(-8px); }
 }
         @media (max-width: 900px) {
+            .header-actions {
+                display: none !important;
+            }
             .sidebar {
                 display: none;
             }
@@ -646,6 +649,58 @@ body {
                 padding-left: 0;
                 padding-bottom: 86px;
             }
+            .att-class-card .flex.flex-col {
+                padding: 12px 12px 12px 20px;
+            }
+
+                .history-record {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        background: rgba(20, 30, 48, 0.6);
+    }
+    
+    .history-record .flex.items-center.gap-3 {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .history-record .date-circle {
+        height: 44px;
+        width: 44px;
+        font-size: 14px;
+    }
+    
+    .history-record .min-w-0.flex-1 {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .history-record .flex.items-center.gap-2:last-child {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(99, 102, 241, 0.08);
+    }
+    
+    .history-del-btn {
+        opacity: 0.7 !important;
+        margin-left: auto;
+    }
+    
+    #attendance-summary-cards {
+        margin-bottom: 16px;
+    }
+    
+    #today-attendance-list {
+        gap: 12px;
+    }
+    
+#history-list {
+    max-height: 500px;
+    padding-right: 4px;
+}
             .mobile-nav {
                 display: grid;
             }
@@ -658,9 +713,7 @@ body {
             .app-header {
                 padding: 16px;
             }
-            .main-wrap {
-                padding: 0 16px 24px;
-            }
+
             .card-standard {
                 padding: 1rem;
             }
@@ -731,6 +784,153 @@ body {
         transform: translateY(0);
     }
 }
+/* === Attendance tab mobile enhancements === */
+.att-class-card {
+    min-height: 100px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.att-class-card.present-card {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    background: rgba(16, 185, 129, 0.05) !important;
+}
+.att-class-card.absent-card {
+    border-color: rgba(239, 68, 68, 0.3) !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+}
+.att-class-card.cancelled-card {
+    border-color: rgba(100, 116, 139, 0.3) !important;
+    background: rgba(100, 116, 139, 0.05) !important;
+}
+.att-class-card.unmarked-card {
+    border-color: rgba(51, 65, 85, 0.5);
+    background: rgba(15, 23, 42, 0.3);
+}
+.att-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 10px;
+    padding: 8px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+    background: rgba(30, 41, 59, 0.5);
+    color: #64748b;
+    min-height: 40px;
+    touch-action: manipulation;
+    border: none;
+    cursor: pointer;
+}
+.att-action-btn i {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+@media (min-width: 640px) {
+    .att-action-btn {
+        padding: 12px 6px;
+        font-size: 13px;
+        min-height: 48px;
+        gap: 6px;
+        border-radius: 12px;
+    }
+    .att-action-btn i {
+        width: 18px;
+        height: 18px;
+    }
+}
+.att-action-btn:active {
+    transform: scale(0.95);
+}
+.att-action-btn.present-active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+.att-action-btn.absent-active {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3);
+}
+.att-action-btn.cancelled-active {
+    background: rgba(100, 116, 139, 0.2);
+    color: #cbd5e1;
+    box-shadow: 0 0 0 1px rgba(100, 116, 139, 0.3);
+}
+#attendance-summary-cards .soft-card {
+    backdrop-filter: blur(8px);
+    background: rgba(20, 30, 48, 0.5);
+}
+.history-record {
+    transition: all 0.2s ease;
+    animation: fadeInUp 0.3s ease both;
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    background: rgba(20, 30, 48, 0.4);
+    padding: 12px;
+    margin-bottom: 6px;
+}
+
+.history-record:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+    background: rgba(30, 41, 59, 0.3);
+}
+
+.history-record:hover .history-del-btn {
+    opacity: 1 !important;
+}
+.date-circle{
+    width:50px;
+    height:50px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:rgba(30,41,59,.5);
+    line-height:1;
+}
+
+.date-circle .day{
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#94a3b8;
+}
+
+.date-circle .date{
+    margin-top:3px;
+    font-size:15px;
+    font-weight:800;
+    color:#fff;
+}
+/* Mobile Timeline Card Styles */
+@media (max-width: 900px) {
+    .timeline-row {
+        padding: 14px !important;
+        margin-bottom: 10px;
+        border-radius: 14px;
+    }
+    
+    .timeline-row .btn {
+        min-height: 36px;
+        font-size: 12px;
+        padding: 0 12px;
+        border-radius: 10px;
+    }
+    
+    .timeline-row i[data-lucide] {
+        width: 14px;
+        height: 14px;
+    }
+    
+    #today-timeline {
+        margin-top: 12px;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -763,7 +963,7 @@ body {
                         <p id="today-label" class="truncate text-xs font-bold uppercase tracking-[.2em]" style="color: var(--accent-primary);"></p>
                         <h2 id="view-title" class="truncate text-xl font-bold">Dashboard</h2>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="header-actions flex items-center gap-2">
                         <span class="hide-xs inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-950/30 px-3 py-2 text-xs text-slate-300">
                             <i data-lucide="wifi-off" class="h-4 w-4 text-emerald-300"></i> <span>Local storage</span>
                         </span>
@@ -774,7 +974,7 @@ body {
                     </div>
                 </div>
             </header>
-            <main class="main-wrap mx-auto max-w-7xl px-6 pb-10 lg:px-8">
+            <main class="main-wrap mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-5">
                 <section id="dashboard-page" class="page active" aria-labelledby="dashboard-heading">
                     <div class="mb-6 flex items-end justify-between">
                         <div>
@@ -789,7 +989,6 @@ body {
                         <button id="empty-add-subject" type="button" class="btn btn-primary mt-6"><i data-lucide="plus" class="h-4 w-4"></i> Add Subject</button>
                     </div>
                     <div id="dashboard-content" class="dashboard-grid">
-                        <!-- Row 1: Today's Classes (full width) -->
                         <article class="glass card card-standard">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -800,7 +999,6 @@ body {
                             <div id="today-timeline" class="mt-5 space-y-2"></div>
                         </article>
 
-                        <!-- Row 2: Next Class + Today's Marks (side by side) -->
                         <div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
                             <article class="glass card card-standard">
                                 <div class="flex items-center gap-3 mb-4">
@@ -846,7 +1044,6 @@ body {
                             </article>
                         </div>
 
-                        <!-- Row 3: Overall Attendance + Semester Progress (side by side) -->
                         <div class="grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
                             <article class="glass card card-standard">
                                 <div class="flex items-start justify-between gap-4">
@@ -861,30 +1058,42 @@ body {
                                 </div>
                                 <p id="overall-counts" class="mt-3 text-sm text-slate-400"></p>
                             </article>
-                            <article class="glass card card-standard">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-bold">Semester Progress</h3><span id="semester-value" class="metric-number text-2xl text-sky-300">0%</span>
-                                </div>
-                                <p class="mt-1 text-sm text-slate-400">Adjust to see projections</p>
-                                <label for="semester-range" class="mt-5 block text-sm font-bold">Semester completion</label>
-                                <input id="semester-range" class="mt-3 w-full accent-sky-400" type="range" min="0" max="100" value="0">
-                                <div class="mt-5 flex items-center gap-3 rounded-2xl bg-orange-400/10 p-3 text-orange-200"><span class="text-2xl">🔥</span>
-                                    <div><span id="streak-value" class="font-bold">0</span> <span>day streak</span></div>
-                                </div>
-                            </article>
+<article class="glass card card-standard">
+    <div class="flex items-center gap-3">
+        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-orange-400/10">
+            <i data-lucide="flame" class="h-5 w-5 text-orange-300"></i>
+        </div>
+        <div>
+            <h3 class="text-lg font-bold">Current Streak</h3>
+            <p class="mt-0.5 text-sm text-slate-400">Your attendance momentum</p>
+        </div>
+    </div>
+    <div class="mt-4 flex items-center gap-4">
+        <div class="text-4xl font-bold text-orange-300"><span id="streak-value" class="metric-number">0</span></div>
+        <div>
+            <p class="text-sm font-bold">Day Streak</p>
+            <p class="text-xs text-slate-400">Keep it going! 🔥</p>
+        </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-slate-700/30">
+        <p class="text-xs text-slate-500 text-center">Attendance tracked daily</p>
+    </div>
+</article>
                         </div>
 
-                        <!-- Row 4: Low Attendance + Forecast (side by side) -->
                         <div class="grid gap-6">
                             <article class="glass card card-standard">
                                 <div class="flex items-center gap-3">
-                                    <div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-400/10 text-orange-300"><i data-lucide="triangle-alert"></i></div>
+                                    <div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-400/10 text-orange-300"><i data-lucide="alert-triangle"></i></div>
                                     <div>
                                         <h3 class="font-bold">Low Attendance</h3>
                                         <p class="text-sm text-slate-400">Subjects below target</p>
                                     </div>
                                 </div>
                                 <div id="low-alerts" class="mt-4 space-y-3"></div>
+                                <div class="mt-4 pt-4 border-t border-slate-700/30">
+                                    <p class="text-xs text-slate-400 text-center">Developed By ~ Shankar Prasad Pyke</p>
+                                </div>
                             </article>
                         </div>
                     </div>
@@ -904,12 +1113,12 @@ body {
                         <h3 class="mt-4 text-xl font-bold">No routine set</h3>
                         <p class="mt-2 text-slate-400">Add classes to build your schedule.</p>
                     </div>
-<div id="routine-desktop" class="glass card desktop-only hidden overflow-hidden" style="padding: 0;">
-    <div class="routine-calendar-container" id="routine-calendar">
-        <div class="routine-week-header" id="routine-week-header"></div>
-        <div class="routine-week-body" id="routine-week-body"></div>
-    </div>
-</div>
+                    <div id="routine-desktop" class="glass card desktop-only hidden overflow-hidden" style="padding: 0;">
+                        <div class="routine-calendar-container" id="routine-calendar">
+                            <div class="routine-week-header" id="routine-week-header"></div>
+                            <div class="routine-week-body" id="routine-week-body"></div>
+                        </div>
+                    </div>
                     <div id="routine-mobile" class="mobile-only hidden space-y-3"></div>
                     <section class="glass card mt-6 p-5 sm:p-6" aria-labelledby="exceptions-heading">
                         <div class="flex items-center justify-between">
@@ -940,8 +1149,32 @@ body {
                         <h2 id="attendance-heading" class="text-2xl font-bold">Attendance</h2>
                         <p class="mt-1 text-slate-400">Mark and review daily attendance.</p>
                     </div>
-                    <div class="grid gap-6 xl:grid-cols-[1.05fr_.95fr]">
-                        <article class="glass card p-5 sm:p-6">
+                    <!-- Attendance Summary Cards -->
+                    <div id="attendance-summary-cards" class="w-full grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+                        <div class="soft-card p-4 text-center">
+                            <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400/10">
+                                <i data-lucide="check" class="h-5 w-5 text-emerald-400"></i>
+                            </div>
+                            <div id="att-summary-present" class="metric-number text-2xl font-bold text-emerald-300">0</div>
+                            <p class="text-xs text-slate-400">Present</p>
+                        </div>
+                        <div class="soft-card p-4 text-center">
+                            <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-rose-400/10">
+                                <i data-lucide="x" class="h-5 w-5 text-rose-400"></i>
+                            </div>
+                            <div id="att-summary-absent" class="metric-number text-2xl font-bold text-rose-300">0</div>
+                            <p class="text-xs text-slate-400">Absent</p>
+                        </div>
+                        <div class="soft-card p-4 text-center">
+                            <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-sky-400/10">
+                                <i data-lucide="clock" class="h-5 w-5 text-sky-400"></i>
+                            </div>
+                            <div id="att-summary-remaining" class="metric-number text-2xl font-bold text-sky-300">0</div>
+                            <p class="text-xs text-slate-400">Remaining</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 sm:gap-6 xl:grid xl:grid-cols-[1.05fr_.95fr]">
+                        <article class="glass card p-4 sm:p-6">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="text-lg font-bold">Mark Today</h3>
@@ -950,14 +1183,21 @@ body {
                             </div>
                             <div id="today-attendance-list" class="mt-5 space-y-3"></div>
                         </article>
-                        <article class="glass card p-5 sm:p-6">
-                            <div class="flex flex-wrap items-center justify-between gap-3">
-                                <div>
-                                    <h3 class="text-lg font-bold">History</h3>
-                                    <p class="mt-1 text-sm text-slate-400">Past attendance records.</p>
-                                </div><input id="history-date-filter" class="field w-auto" type="date" aria-label="Filter history by date">
+                        <article class="glass card p-4 sm:p-6">
+                            <div class="space-y-4">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-bold">History</h3>
+                                        <p class="mt-1 text-sm text-slate-400">Past attendance records.</p>
+                                    </div>
+                                    <button id="history-clear-filter" class="hidden text-xs font-bold text-sky-400 hover:underline">Clear filter</button>
+                                </div>
+                                <div class="relative">
+                                    <i data-lucide="calendar" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"></i>
+                                    <input id="history-date-filter" class="field w-full !pl-10" type="date" aria-label="Filter history by date">
+                                </div>
                             </div>
-                            <div id="history-list" class="mt-5 max-h-[620px] space-y-3 overflow-auto pr-1"></div>
+                            <div id="history-list" class="mt-5 max-h-[400px] sm:max-h-[620px] space-y-2 overflow-auto pr-1"></div>
                         </article>
                     </div>
                 </section>
@@ -973,7 +1213,7 @@ body {
             <button class="nav-button flex-col justify-center gap-1 px-1 text-xs" type="button" data-view="routine"><i data-lucide="calendar-days" class="h-5 w-5"></i><span>Routine</span></button>
             <button class="nav-button flex-col justify-center gap-1 px-1 text-xs" type="button" data-view="subjects"><i data-lucide="book-open" class="h-5 w-5"></i><span>Subjects</span></button>
         </nav>
-        
+
         <div id="toast" class="toast glass fixed left-1/2 top-5 z-[80] flex -translate-x-1/2 items-center gap-3 rounded-2xl px-4 py-3 shadow-2xl" role="status" aria-live="polite">
             <div class="grid h-9 w-9 place-items-center rounded-full bg-emerald-400 text-slate-950"><i data-lucide="check" class="h-5 w-5"></i></div>
             <div>
@@ -1087,8 +1327,8 @@ body {
     </div>
     <script>
         const STORAGE_KEY = "attendanceTracker.v1";
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        const initialState = { subjects: [], routine: [], attendance: [], notes: [], exceptions: [], settings: { semesterProgress: 0 } };
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        const initialState = { subjects: [], routine: [], attendance: [], notes: [], exceptions: [], settings: {} };
         let state = loadState();
         let activeView = "dashboard";
         let activeSubjectId = null;
@@ -1104,7 +1344,7 @@ body {
                     attendance: Array.isArray(saved.attendance) ? saved.attendance : [],
                     notes: Array.isArray(saved.notes) ? saved.notes : [],
                     exceptions: Array.isArray(saved.exceptions) ? saved.exceptions : [],
-                    settings: saved.settings || { semesterProgress: 0 }
+                    settings: saved.settings || {}
                 } : structuredClone(initialState);
             } catch (_) {
                 return structuredClone(initialState);
@@ -1143,12 +1383,13 @@ body {
             return new Intl.DateTimeFormat("en-IN", options).format(parseDateKey(value));
         }
 
-        function timeLabel(value) {
-            if (!value) return "";
-            const [h, m] = value.split(":").map(Number);
-            return new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit" }).format(new Date(2000, 0, 1, h,
-                m));
-        }
+function timeLabel(value) {
+    if (!value) return "";
+    const [h, m] = value.split(":").map(Number);
+    const period = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 || 12;
+    return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
+}
 
         function todayName() {
             return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
@@ -1299,18 +1540,37 @@ body {
             document.getElementById("today-class-caption").textContent =
                 `${today.length} scheduled class${today.length === 1 ? "" : "es"}`;
             const timeline = document.getElementById("today-timeline");
-            timeline.innerHTML = today.length ? today.map(r => {
-                const s = subjectById(r.subjectId);
-                if (!s) return "";
-                const isCurrent = current && current.id === r.id;
-                const rec = attendanceFor(localDateKey(), r.id);
-                return `<div class="timeline-row soft-card flex items-center gap-4 p-3 ${isCurrent ? "is-current" : ""}">
-          <div class="w-20 shrink-0 text-sm font-bold ${isCurrent ? "text-emerald-300" : "text-slate-400"}">${timeLabel(r.start)}</div>
-          <div class="h-10 w-1 rounded-full" style="background:${s.color}"></div>
-          <div class="min-w-0 flex-1"><p class="truncate font-bold">${escapeHtml(s.name)}</p><p class="truncate text-xs text-slate-400">${escapeHtml(r.room || s.room || "Room not set")}</p></div>
-          ${isCurrent ? '<span class="status-pill status-present">NOW</span>' : rec ? statusPill(rec.status) : ""}
-        </div>`;
-            }).join("") :
+timeline.innerHTML = today.length ? today.map(r => {
+    const s = subjectById(r.subjectId);
+    if (!s) return "";
+    const isCurrent = current && current.id === r.id;
+    const rec = attendanceFor(localDateKey(), r.id);
+    return `<div class="timeline-row soft-card p-3 ${isCurrent ? "is-current" : ""}" style="border-radius: 14px; border-left: 4px solid ${s.color};">
+      <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <div style="flex: 1; min-width: 0;">
+            <p class="font-bold" style="font-size: 15px; color: ${s.color};">${escapeHtml(s.name)}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">
+              <span style="font-size: 12px; color: var(--text-secondary); background: rgba(99, 102, 241, 0.08); padding: 2px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                <i data-lucide="clock" class="h-3 w-3"></i> ${timeLabel(r.start)} - ${timeLabel(r.end)}
+              </span>
+              ${r.room || s.room ? `<span style="font-size: 12px; color: var(--text-secondary); background: rgba(99, 102, 241, 0.08); padding: 2px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                <i data-lucide="map-pin" class="h-3 w-3"></i> ${escapeHtml(r.room || s.room)}
+              </span>` : ''}
+              ${r.teacher || s.teacher ? `<span style="font-size: 12px; color: var(--text-secondary); background: rgba(99, 102, 241, 0.08); padding: 2px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                <i data-lucide="user" class="h-3 w-3"></i> ${escapeHtml(r.teacher || s.teacher)}
+              </span>` : ''}
+            </div>
+          </div>
+          ${isCurrent ? '<span class="status-pill status-present" style="flex-shrink: 0;">NOW</span>' : rec ? statusPill(rec.status) : ""}
+        </div>
+        ${rec ? `<div style="margin-top: 4px; font-size: 11px; color: var(--text-muted);">Attendance marked ✓</div>` : `<div style="margin-top: 4px; display: flex; gap: 6px;">
+          <button class="btn btn-primary" style="flex: 1; min-height: 34px; font-size: 12px; padding: 0 10px;" data-mark="${r.id}" data-status="present"><i data-lucide="check" class="h-3 w-3"></i> Present</button>
+          <button class="btn btn-danger" style="flex: 1; min-height: 34px; font-size: 12px; padding: 0 10px;" data-mark="${r.id}" data-status="absent"><i data-lucide="x" class="h-3 w-3"></i> Absent</button>
+        </div>`}
+      </div>
+    </div>`;
+}).join("") :
                 `<div class="soft-card p-6 text-center text-slate-400">No classes scheduled today.</div>`;
 
             const stats = state.subjects.map(subjectStats);
@@ -1324,8 +1584,6 @@ body {
             document.getElementById("overall-counts").textContent = totalClasses ?
                 `${totalPresent} present out of ${totalClasses} classes` : "Mark attendance to begin.";
 
-            document.getElementById("semester-range").value = state.settings.semesterProgress || 0;
-            document.getElementById("semester-value").textContent = (state.settings.semesterProgress || 0) + "%";
             document.getElementById("streak-value").textContent = calculateStreak();
 
             const nextBox = document.getElementById("next-class-content");
@@ -1371,7 +1629,6 @@ body {
         </button>`;
             }).join("") :
                 `<div class="soft-card p-4 text-sm text-slate-400">No low-attendance alerts.</div>`;
-
         }
 
         function calculateStreak() {
@@ -1387,183 +1644,176 @@ body {
             return streak;
         }
 
-function renderRoutine() {
-    const hasRoutine = state.routine.length > 0;
-    document.getElementById("routine-empty").classList.toggle("hidden", hasRoutine);
-    document.getElementById("routine-desktop").classList.toggle("hidden", !hasRoutine);
-    
-    const today = todayName();
-    
-    // Desktop Calendar View
-    if (hasRoutine) {
-        const weekHeader = document.getElementById("routine-week-header");
-        const weekBody = document.getElementById("routine-week-body");
-        
-        // Get current week dates
-        const todayDate = new Date();
-        const currentDay = todayDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // Adjust for Monday start
-        
-        const weekDates = days.map((day, index) => {
-            const date = new Date(todayDate);
-            date.setDate(todayDate.getDate() + mondayOffset + index);
-            return {
-                dayName: day,
-                date: date.getDate(),
-                month: date.toLocaleString('en-US', { month: 'short' }),
-                isToday: day === today
-            };
-        });
-        
-        // Render header
-        weekHeader.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(10, 15, 30, 0.4); border-right: 1px solid var(--border);">
-                <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Time</span>
-            </div>
-            ${weekDates.map(d => `
-                <div class="routine-day-header ${d.isToday ? 'today' : ''}">
-                    <span class="day-name">${d.dayName.slice(0, 3)}</span>
-                    <span class="day-date">${d.date}</span>
-                    <span style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">${d.month}</span>
-                </div>
-            `).join("")}
-        `;
-        
-        // Create hour slots from 7 AM to 8 PM
-        const hours = [];
-        for (let h = 7; h <= 20; h++) {
-            hours.push({
-                hour: h,
-                label: `${h.toString().padStart(2, '0')}:00`,
-                start: `${h.toString().padStart(2, '0')}:00`,
-                end: `${(h + 1).toString().padStart(2, '0')}:00`
-            });
-        }
-        
-        // Render body
-        weekBody.innerHTML = hours.map(hour => `
-            <div class="routine-hour-row">
-                <div class="routine-time-gutter">${hour.label}</div>
-                ${days.map(day => {
-                    // Find routine entries that start in this hour
-                    const routineEntry = state.routine.find(r => {
-                        const startHour = parseInt(r.start.split(':')[0]);
-                        return r.day === day && startHour === hour.hour;
-                    });
-                    
-                    if (routineEntry) {
-                        const subject = subjectById(routineEntry.subjectId);
-                        if (!subject) {
-                            return `<div class="routine-slot empty"></div>`;
-                        }
-                        
-                        return `
-                            <button type="button" 
-                                    data-edit-routine="${routineEntry.id}" 
-                                    class="routine-slot has-class"
-                                    style="box-shadow: inset 3px 0 0 0 ${subject.color};">
-                                <div class="slot-content">
-                                    <div class="time-range">${timeLabel(routineEntry.start)} - ${timeLabel(routineEntry.end)}</div>
-                                    <div class="subject-indicator">
-                                        <span class="subject-dot" style="background: ${subject.color};"></span>
-                                        <span class="subject-name" style="color: ${subject.color};">${escapeHtml(subject.name)}</span>
-                                    </div>
-                                    <div class="meta-info">
-                                        ${routineEntry.room || subject.room ? `<span>📍 ${escapeHtml(routineEntry.room || subject.room)}</span>` : ''}
-                                        ${routineEntry.teacher || subject.teacher ? `<span>👤 ${escapeHtml(routineEntry.teacher || subject.teacher)}</span>` : ''}
-                                    </div>
-                                </div>
-                            </button>
-                        `;
-                    } else {
-                        // Check if there's a class spanning this hour
-                        const spanningEntry = state.routine.find(r => {
-                            const startHour = parseInt(r.start.split(':')[0]);
-                            const endHour = parseInt(r.end.split(':')[0]);
-                            return r.day === day && startHour < hour.hour && endHour > hour.hour;
-                        });
-                        
-                        if (spanningEntry) {
-                            const subject = subjectById(spanningEntry.subjectId);
-                            return `
-                                <div class="routine-slot has-class" 
-                                     style="opacity: 0.5; box-shadow: inset 3px 0 0 0 ${subject ? subject.color : 'transparent'};">
-                                    <div class="slot-content" style="display: flex; align-items: center; justify-content: center;">
-                                        <span style="font-size: 10px; color: var(--text-muted);">continues...</span>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                        
-                        return `
-                            <div class="routine-slot empty">
-                                <span style="font-size: 11px; color: var(--text-muted); opacity: 0.3;">${hour.label}</span>
-                            </div>
-                        `;
-                    }
-                }).join("")}
-            </div>
-        `).join("");
-    }
-    
-    // Mobile View
-    const mobile = document.getElementById("routine-mobile");
-    mobile.classList.toggle("hidden", !hasRoutine);
-    if (hasRoutine) {
-        mobile.innerHTML = days.map(day => {
-            const list = state.routine.filter(r => r.day === day).sort((a, b) => a.start.localeCompare(b.start));
-            if (!list.length) return "";
+        function renderRoutine() {
+            const hasRoutine = state.routine.length > 0;
+            document.getElementById("routine-empty").classList.toggle("hidden", hasRoutine);
+            document.getElementById("routine-desktop").classList.toggle("hidden", !hasRoutine);
             
-            const isToday = day === today;
+            const today = todayName();
             
-            return `
-                <div class="routine-day-card ${isToday ? 'today-card' : ''}">
-                    <div class="routine-day-header-mobile">
-                        <span class="day-label" style="color: ${isToday ? 'var(--accent-primary)' : 'var(--text-primary)'};">
-                            ${day}
-                        </span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            ${isToday ? '<span class="today-badge">Today</span>' : ''}
-                            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 12px;">
-                                ${list.length} class${list.length !== 1 ? 'es' : ''}
-                            </span>
-                        </div>
+            if (hasRoutine) {
+                const weekHeader = document.getElementById("routine-week-header");
+                const weekBody = document.getElementById("routine-week-body");
+                
+                const todayDate = new Date();
+                const currentDay = todayDate.getDay();
+                const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+                
+                const weekDates = days.map((day, index) => {
+                    const date = new Date(todayDate);
+                    date.setDate(todayDate.getDate() + mondayOffset + index);
+                    return {
+                        dayName: day,
+                        date: date.getDate(),
+                        month: date.toLocaleString('en-US', { month: 'short' }),
+                        isToday: day === today
+                    };
+                });
+                
+                weekHeader.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(10, 15, 30, 0.4); border-right: 1px solid var(--border);">
+                        <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Time</span>
                     </div>
-                    ${list.map(r => {
-                        const s = subjectById(r.subjectId);
-                        if (!s) return "";
-                        
-                        return `
-                            <button type="button" 
-                                    data-edit-routine="${r.id}" 
-                                    class="routine-class-item">
-                                <div class="color-strip" style="background: ${s.color};"></div>
-                                <div class="class-info">
-                                    <div class="class-time-mobile">${timeLabel(r.start)} → ${timeLabel(r.end)}</div>
-                                    <div class="class-name-mobile" style="color: ${s.color};">${escapeHtml(s.name)}</div>
-                                    <div class="class-meta-mobile">
-                                        ${r.room || s.room ? `<span>📍 ${escapeHtml(r.room || s.room)}</span>` : ''}
-                                        ${r.teacher || s.teacher ? `<span>👤 ${escapeHtml(r.teacher || s.teacher)}</span>` : ''}
+                    ${weekDates.map(d => `
+                        <div class="routine-day-header ${d.isToday ? 'today' : ''}">
+                            <span class="day-name">${d.dayName.slice(0, 3)}</span>
+                            <span class="day-date">${d.date}</span>
+                            <span style="font-size: 9px; color: var(--text-muted); margin-top: 1px;">${d.month}</span>
+                        </div>
+                    `).join("")}
+                `;
+                
+                const hours = [];
+                for (let h = 9; h <= 17; h++) {
+                    const period = h >= 12 ? "PM" : "AM";
+                    const hour12 = h % 12 || 12;
+                    hours.push({
+                        hour: h,
+                        label: `${hour12}:00 ${period}`,
+                        start: `${h.toString().padStart(2, '0')}:00`,
+                        end: `${(h + 1).toString().padStart(2, '0')}:00`
+                    });
+                }
+                
+                weekBody.innerHTML = hours.map(hour => `
+                    <div class="routine-hour-row">
+                        <div class="routine-time-gutter">${hour.label}</div>
+                        ${days.map(day => {
+                            const routineEntry = state.routine.find(r => {
+                                const startHour = parseInt(r.start.split(':')[0]);
+                                return r.day === day && startHour === hour.hour;
+                            });
+                            
+                            if (routineEntry) {
+                                const subject = subjectById(routineEntry.subjectId);
+                                if (!subject) {
+                                    return `<div class="routine-slot empty"></div>`;
+                                }
+                                
+                                return `
+                                    <button type="button" 
+                                            data-edit-routine="${routineEntry.id}" 
+                                            class="routine-slot has-class"
+                                            style="box-shadow: inset 3px 0 0 0 ${subject.color};">
+                                        <div class="slot-content">
+                                            <div class="time-range">${timeLabel(routineEntry.start)} - ${timeLabel(routineEntry.end)}</div>
+                                            <div class="subject-indicator">
+                                                <span class="subject-dot" style="background: ${subject.color};"></span>
+                                                <span class="subject-name" style="color: ${subject.color};">${escapeHtml(subject.name)}</span>
+                                            </div>
+                                            <div class="meta-info">
+                                                ${routineEntry.room || subject.room ? `<span>📍 ${escapeHtml(routineEntry.room || subject.room)}</span>` : ''}
+                                                ${routineEntry.teacher || subject.teacher ? `<span>👤 ${escapeHtml(routineEntry.teacher || subject.teacher)}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </button>
+                                `;
+                            } else {
+                                const spanningEntry = state.routine.find(r => {
+                                    const startHour = parseInt(r.start.split(':')[0]);
+                                    const endHour = parseInt(r.end.split(':')[0]);
+                                    return r.day === day && startHour < hour.hour && endHour > hour.hour;
+                                });
+                                
+                                if (spanningEntry) {
+                                    const subject = subjectById(spanningEntry.subjectId);
+                                    return `
+                                        <div class="routine-slot has-class" 
+                                             style="opacity: 0.5; box-shadow: inset 3px 0 0 0 ${subject ? subject.color : 'transparent'};">
+                                            <div class="slot-content" style="display: flex; align-items: center; justify-content: center;">
+                                                <span style="font-size: 10px; color: var(--text-muted);">continues...</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                return `
+                                    <div class="routine-slot empty">
+                                        <span style="font-size: 11px; color: var(--text-muted); opacity: 0.3;">${hour.label}</span>
                                     </div>
+                                `;
+                            }
+                        }).join("")}
+                    </div>
+                `).join("");
+            }
+            
+            const mobile = document.getElementById("routine-mobile");
+            mobile.classList.toggle("hidden", !hasRoutine);
+            if (hasRoutine) {
+                mobile.innerHTML = days.map(day => {
+                    const list = state.routine.filter(r => r.day === day).sort((a, b) => a.start.localeCompare(b.start));
+                    if (!list.length) return "";
+                    
+                    const isToday = day === today;
+                    
+                    return `
+                        <div class="routine-day-card ${isToday ? 'today-card' : ''}">
+                            <div class="routine-day-header-mobile">
+                                <span class="day-label" style="color: ${isToday ? 'var(--accent-primary)' : 'var(--text-primary)'};">
+                                    ${day}
+                                </span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    ${isToday ? '<span class="today-badge">Today</span>' : ''}
+                                    <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 12px;">
+                                        ${list.length} class${list.length !== 1 ? 'es' : ''}
+                                    </span>
                                 </div>
-                            </button>
-                        `;
-                    }).join("")}
-                </div>
-            `;
-        }).join("");
-    }
+                            </div>
+                            ${list.map(r => {
+                                const s = subjectById(r.subjectId);
+                                if (!s) return "";
+                                
+                                return `
+                                    <button type="button" 
+                                            data-edit-routine="${r.id}" 
+                                            class="routine-class-item">
+                                        <div class="color-strip" style="background: ${s.color};"></div>
+                                        <div class="class-info">
+                                            <div class="class-time-mobile">${timeLabel(r.start)} → ${timeLabel(r.end)}</div>
+                                            <div class="class-name-mobile" style="color: ${s.color};">${escapeHtml(s.name)}</div>
+                                            <div class="class-meta-mobile">
+                                                ${r.room || s.room ? `<span>📍 ${escapeHtml(r.room || s.room)}</span>` : ''}
+                                                ${r.teacher || s.teacher ? `<span>👤 ${escapeHtml(r.teacher || s.teacher)}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </button>
+                                `;
+                            }).join("")}
+                        </div>
+                    `;
+                }).join("");
+            }
 
-    // Exceptions section
-    const exceptions = [...state.exceptions].sort((a, b) => b.date.localeCompare(a.date));
-    document.getElementById("exceptions-list").innerHTML = exceptions.length ? exceptions.map(e =>
-        `<div class="soft-card flex items-center gap-3 p-3" style="animation: slideIn 0.3s ease;">
-        <div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-400/10 text-orange-300">${addIcon("calendar-off")}</div>
-        <div class="min-w-0 flex-1"><p class="font-bold">${dateLabel(e.date, true)} · ${escapeHtml(e.type)}</p><p class="truncate text-sm text-slate-400">${escapeHtml(e.note || "No note")}</p></div>
-        <button type="button" data-delete-exception="${e.id}" class="grid h-10 w-10 place-items-center rounded-xl text-rose-300 hover:bg-rose-400/10" aria-label="Delete exception">${addIcon("trash-2")}</button>
-      </div>`).join("") :
-        `<p class="soft-card p-4 text-sm text-slate-400">No holidays, exams, or cancelled days added.</p>`;
-}
+            const exceptions = [...state.exceptions].sort((a, b) => b.date.localeCompare(a.date));
+            document.getElementById("exceptions-list").innerHTML = exceptions.length ? exceptions.map(e =>
+                `<div class="soft-card flex items-center gap-3 p-3" style="animation: slideIn 0.3s ease;">
+                <div class="grid h-10 w-10 place-items-center rounded-xl bg-orange-400/10 text-orange-300">${addIcon("calendar-off")}</div>
+                <div class="min-w-0 flex-1"><p class="font-bold">${dateLabel(e.date, true)} · ${escapeHtml(e.type)}</p><p class="truncate text-sm text-slate-400">${escapeHtml(e.note || "No note")}</p></div>
+                <button type="button" data-delete-exception="${e.id}" class="grid h-10 w-10 place-items-center rounded-xl text-rose-300 hover:bg-rose-400/10" aria-label="Delete exception">${addIcon("trash-2")}</button>
+              </div>`).join("") :
+                `<p class="soft-card p-4 text-sm text-slate-400">No holidays, exams, or cancelled days added.</p>`;
+        }
 
         function routineCard(r, compact) {
             const s = subjectById(r.subjectId);
@@ -1607,6 +1857,13 @@ function renderRoutine() {
 
         function renderAttendance() {
             const date = localDateKey();
+            // Update attendance summary cards
+            const todayRoutine = getTodayRoutine();
+            const todayRecords = todayRoutine.map(r => attendanceFor(date, r.id)).filter(Boolean);
+            document.getElementById('att-summary-present').textContent = todayRecords.filter(a => a.status === 'present').length;
+            document.getElementById('att-summary-absent').textContent = todayRecords.filter(a => a.status === 'absent').length;
+            document.getElementById('att-summary-remaining').textContent = Math.max(0, todayRoutine.length - todayRecords.length);
+            
             document.getElementById("attendance-date").textContent = new Intl.DateTimeFormat("en-IN", { weekday: "long",
                 day: "numeric", month: "long" }).format(new Date());
             const exception = exceptionFor(date);
@@ -1626,17 +1883,44 @@ function renderRoutine() {
                 box.innerHTML = list.map(r => {
                     const s = subjectById(r.subjectId);
                     const rec = attendanceFor(date, r.id);
-                    return `<div class="soft-card p-4" style="box-shadow:inset 3px 0 ${s.color}">
-            <div class="flex items-center justify-between gap-3">
-              <div><p class="font-bold">${escapeHtml(s.name)}</p><p class="mt-1 text-sm text-slate-400">${timeLabel(r.start)} · ${escapeHtml(r.room || s.room || "Room not set")}</p></div>
-              ${rec ? statusPill(rec.status) : '<span class="text-xs text-slate-500">Not marked</span>'}
-            </div>
-            <div class="mt-4 grid grid-cols-3 gap-2">
-              ${attendanceButton(r.id,"present","check","Present",rec)}
-              ${attendanceButton(r.id,"absent","x","Absent",rec)}
-              ${attendanceButton(r.id,"cancelled","minus-circle","Cancelled",rec)}
-            </div>
-          </div>`;
+                    const status = rec ? rec.status : 'unmarked';
+                    const statusCardClass = 
+                        status === 'present' ? 'present-card' :
+                        status === 'absent' ? 'absent-card' :
+                        status === 'cancelled' ? 'cancelled-card' : 'unmarked-card';
+                    const btnPresentClass = status === 'present' ? 'present-active' : '';
+                    const btnAbsentClass = status === 'absent' ? 'absent-active' : '';
+                    const btnCancelledClass = status === 'cancelled' ? 'cancelled-active' : '';
+                    
+                    return `
+                    <div class="att-class-card ${statusCardClass} relative overflow-hidden rounded-2xl border" style="min-height: 100px;">
+                        <div class="absolute bottom-0 left-0 top-0 w-1.5" style="background: ${s.color};"></div>
+                        <div class="flex flex-col h-full p-4 pl-6">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-base truncate">${escapeHtml(s.name)}</h4>
+                                    <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                                        <span class="flex items-center gap-1"><i data-lucide="clock" class="h-3 w-3"></i> ${timeLabel(r.start)} - ${timeLabel(r.end)}</span>
+                                        ${r.room || s.room ? `<span class="flex items-center gap-1"><i data-lucide="map-pin" class="h-3 w-3"></i> ${escapeHtml(r.room || s.room)}</span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="shrink-0">
+                                    ${rec ? statusPill(rec.status) : '<span class="inline-flex items-center gap-1 rounded-full bg-slate-800 px-3 py-1 text-[10px] font-bold text-slate-400">PENDING</span>'}
+                                </div>
+                            </div>
+<div class="mt-3 sm:mt-4 grid grid-cols-3 gap-1.5 sm:gap-3">
+<button type="button" data-mark="${r.id}" data-status="present" class="att-action-btn ${btnPresentClass}" title="Present">
+    <i data-lucide="check" class="h-3 w-3 sm:h-4 sm:w-4"></i> <span class="hidden sm:inline">Present</span>
+</button>
+<button type="button" data-mark="${r.id}" data-status="absent" class="att-action-btn ${btnAbsentClass}" title="Absent">
+    <i data-lucide="x" class="h-3 w-3 sm:h-4 sm:w-4"></i> <span class="hidden sm:inline">Absent</span>
+</button>
+<button type="button" data-mark="${r.id}" data-status="cancelled" class="att-action-btn ${btnCancelledClass}" title="Cancelled">
+    <i data-lucide="minus-circle" class="h-3 w-3 sm:h-4 sm:w-4"></i> <span class="hidden sm:inline">Cancel</span>
+</button>
+</div>
+                        </div>
+                    </div>`;
                 }).join("");
             }
 
@@ -1646,25 +1930,41 @@ function renderRoutine() {
                 .sort((a, b) => (b.date + (routineById(b.routineId)?.start || "")).localeCompare(a.date + (routineById(a
                     .routineId)?.start || "")));
             const history = document.getElementById("history-list");
-            history.innerHTML = records.length ? records.map(a => {
+            history.innerHTML = records.length ? records.map((a, index) => {
                 const s = subjectById(a.subjectId);
                 if (!s) return "";
-                return `<div class="soft-card p-3">
-          <div class="flex items-center gap-3">
-            <div class="w-14 text-center"><p class="font-bold">${dateLabel(a.date)}</p></div>
-            <div class="h-9 w-1 rounded-full" style="background:${s.color}"></div>
-            <div class="min-w-0 flex-1"><p class="truncate font-bold">${escapeHtml(s.name)}</p><p class="text-xs text-slate-500">${timeLabel(routineById(a.routineId)?.start || "")}</p></div>
-            ${statusPill(a.status)}
-            <button type="button" data-delete-attendance="${a.id}" class="grid h-9 w-9 place-items-center rounded-xl text-rose-300 hover:bg-rose-400/10" aria-label="Delete attendance record">${addIcon("trash-2")}</button>
-          </div>
-          <div class="mt-3 grid grid-cols-3 gap-2">
-            ${historyEditButton(a.id,"present","Present",a.status)}
-            ${historyEditButton(a.id,"absent","Absent",a.status)}
-            ${historyEditButton(a.id,"cancelled","Cancelled",a.status)}
-          </div>
-        </div>`;
+                const parsedDate = parseDateKey(a.date);
+                const dayName = parsedDate
+                    .toLocaleDateString("en-US", { weekday: "short" })
+                    .toUpperCase();
+                return `
+                <div class="history-record rounded-xl border border-slate-700/30 bg-slate-950/20 p-4" style="animation-delay: ${index * 0.05}s;">
+                    <div class="flex items-center gap-3">
+                        <div class="date-circle">
+                            <span class="day">${dayName}</span>
+                            <span class="date">${parsedDate.getDate()}</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2">
+                                <div class="h-2.5 w-2.5 rounded-full" style="background: ${s.color};"></div>
+                                <p class="truncate text-sm font-bold">${escapeHtml(s.name)}</p>
+                            </div>
+                            <p class="mt-0.5 text-xs text-slate-500">${dateLabel(a.date, true)} · ${timeLabel(routineById(a.routineId)?.start || "")}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${statusPill(a.status)}
+                            <button type="button" data-delete-attendance="${a.id}" class="history-del-btn grid h-8 w-8 place-items-center rounded-lg text-rose-300 opacity-0 transition-opacity hover:bg-rose-400/10" aria-label="Delete record">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
             }).join("") :
-                `<div class="soft-card p-7 text-center text-slate-400">No attendance history yet.</div>`;
+                `<div class="soft-card p-10 text-center">
+                    <i data-lucide="calendar-off" class="mx-auto h-10 w-10 text-slate-500"></i>
+                    <p class="mt-4 font-bold text-slate-400">No history found</p>
+                    <p class="mt-1 text-sm text-slate-500">${filter ? 'No records match this date filter.' : 'Start marking attendance to build your history.'}</p>
+                </div>`;
         }
 
         function attendanceButton(routineId, status, icon, label, record) {
@@ -2068,17 +2368,18 @@ function renderRoutine() {
             closeModal("confirm-modal");
             if (action) action();
         });
-        document.getElementById("history-date-filter").addEventListener("change", renderAttendance);
-        document.getElementById("semester-range").addEventListener("input", e => {
-            state.settings.semesterProgress = Number(e.target.value);
-            document.getElementById("semester-value").textContent = e.target.value + "%";
-            saveState();
+        document.getElementById("history-date-filter").addEventListener("change", () => {
+            const filterValue = document.getElementById("history-date-filter").value;
+            document.getElementById("history-clear-filter").classList.toggle("hidden", !filterValue);
+            renderAttendance();
         });
-        document.getElementById("semester-range").addEventListener("change", renderAll);
 
-        document.querySelectorAll(".modal-layer").forEach(layer => {
-            layer.addEventListener("mousedown", e => { if (e.target === layer) closeModal(layer.id); });
+        document.getElementById("history-clear-filter").addEventListener("click", () => {
+            document.getElementById("history-date-filter").value = "";
+            document.getElementById("history-clear-filter").classList.add("hidden");
+            renderAttendance();
         });
+
         document.addEventListener("keydown", e => {
             if (e.key === "Escape") {
                 const open = document.querySelector(".modal-layer.open");
